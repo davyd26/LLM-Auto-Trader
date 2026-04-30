@@ -21,7 +21,7 @@ from dataclasses import dataclass
 class FillConfig:
     taker_fee_bps: float = 4.0      # 0.04% Binance perp taker default
     slippage_bps: float = 5.0        # extra bps of adverse price movement on fills
-    funding_rate_per_period: float = 0.0  # average funding hit per period (placeholder)
+    funding_rate_per_day: float = 0.0  # daily funding rate (positive favors shorts)
 
 
 @dataclass
@@ -130,11 +130,23 @@ def simulate_close(
     else:
         gross = (trade.entry_price - exit_price) * trade.size
 
+    # Funding cost: notional × rate × days_held; longs pay positive funding,
+    # shorts receive it (sign handled inside compute_funding_cost).
+    from src.backtest.funding import compute_funding_cost
+    days_held = max(0.0, (exit_ts_ms - trade.entry_ts_ms) / 86_400_000.0)
+    notional = trade.entry_price * trade.size
+    funding_cost = compute_funding_cost(
+        side=trade.side,
+        notional=notional,
+        days_held=days_held,
+        funding_rate_per_day=config.funding_rate_per_day,
+    )
+
     trade.exit_price = exit_price
     trade.exit_ts_ms = exit_ts_ms
     trade.exit_fee = exit_fee
     trade.exit_reason = exit_reason
-    trade.pnl = gross - trade.entry_fee - exit_fee
+    trade.pnl = gross - trade.entry_fee - exit_fee - funding_cost
     return trade
 
 

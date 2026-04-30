@@ -22,6 +22,7 @@ from src.analysis.backtest_stats import (
     profit_factor,
     sharpe_annualized,
 )
+from src.analysis.bootstrap import block_bootstrap_sharpe_ci
 from src.backtest.runner import BacktestResult
 
 
@@ -60,6 +61,21 @@ def aggregate_results(
         ) if len(moments) > 1 else 0.0
     )
 
+    # Block-bootstrap CI on Sharpe — robust to serial correlation. Use the
+    # concatenated returns across all paths for a single composite CI.
+    if len(moments) >= 8:
+        sharpe_ci_lo, sharpe_ci_hi = block_bootstrap_sharpe_ci(
+            moments,
+            periods_per_year=periods_per_year,
+            n_resamples=500,
+            block_size=4,
+            confidence=0.95,
+            seed=0,
+        )
+    else:
+        sharpe_ci_lo = math.nan
+        sharpe_ci_hi = math.nan
+
     summary: dict[str, Any] = {
         "n_paths": len(results),
         "median_final_equity": float(np.median(final_equities)),
@@ -71,6 +87,8 @@ def aggregate_results(
         "median_sharpe": median_sharpe,
         "p5_sharpe": float(np.percentile(sharpes, 5)),
         "p95_sharpe": float(np.percentile(sharpes, 95)),
+        "sharpe_ci_lo_95": float(sharpe_ci_lo) if not math.isnan(sharpe_ci_lo) else None,
+        "sharpe_ci_hi_95": float(sharpe_ci_hi) if not math.isnan(sharpe_ci_hi) else None,
         "median_max_drawdown": float(np.median(drawdowns)),
         "p95_max_drawdown": float(np.percentile(drawdowns, 95)),
         "psr_on_median_sharpe": float(psr_on_median),

@@ -158,6 +158,26 @@ class TestAggregateSharpe:
         assert "median_sharpe" in summary
         assert isinstance(summary["median_sharpe"], float)
 
+    def test_bootstrap_ci_present_when_sufficient_data(self) -> None:
+        # Need at least 8 total return observations for the bootstrap CI to engage
+        import numpy as np
+        rng = np.random.default_rng(42)
+        equity = 2000.0 + np.cumsum(rng.normal(20, 50, 30))
+        curve = [(i, float(equity[i])) for i in range(30)]
+        rs = [BacktestResult(path_id="0", initial_equity=2000.0, final_equity=float(equity[-1]),
+                             equity_curve=curve, trades=[])]
+        summary = aggregate_results(rs, periods_per_year=52)
+        assert summary["sharpe_ci_lo_95"] is not None
+        assert summary["sharpe_ci_hi_95"] is not None
+        assert summary["sharpe_ci_lo_95"] <= summary["sharpe_ci_hi_95"]
+
+    def test_bootstrap_ci_none_when_insufficient_data(self) -> None:
+        rs = [BacktestResult(path_id="0", initial_equity=2000.0, final_equity=2100.0,
+                             equity_curve=[(0, 2000.0), (1, 2100.0)], trades=[])]
+        summary = aggregate_results(rs, periods_per_year=52)
+        assert summary["sharpe_ci_lo_95"] is None
+        assert summary["sharpe_ci_hi_95"] is None
+
 
 class TestJSONExport:
     def test_write_summary_json_round_trip(self, tmp_path: Path) -> None:
