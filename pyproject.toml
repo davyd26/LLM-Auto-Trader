@@ -1,0 +1,86 @@
+[project]
+name = "llm-auto-trader"
+version = "0.1.0"
+description = "LLM-driven crypto trading bot built on CCXT. Paper-trade first."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+authors = [
+    { name = "Erfan Alimohammadi", email = "erfan.aa@gmail.com" },
+]
+keywords = ["crypto", "trading", "llm", "ccxt", "paper-trading", "futures"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Office/Business :: Financial :: Investment",
+]
+
+# Core deps — minimal. Provider SDKs are extras so users only install what
+# they actually use.
+dependencies = [
+    "ccxt>=4.0",
+    "pandas>=2.0",
+    "ta>=0.11",
+    "numpy>=1.24",
+    "aiohttp>=3.9",
+    "aiosqlite>=0.19",
+    "httpx>=0.27",
+    "pydantic>=2.0",
+    "structlog>=24.0",
+    "python-dotenv>=1.0",
+    "websockets>=12.0",
+    "feedparser>=6.0",
+]
+
+[project.optional-dependencies]
+anthropic = ["anthropic>=0.40"]
+openai = ["openai>=1.40"]
+google = ["google-genai>=0.3"]
+local = []  # OpenAI-compat uses httpx (already in core)
+ws = ["ccxt[ws]>=4.0"]
+telegram = ["python-telegram-bot>=21.0"]
+finance-extra = ["yfinance>=0.2"]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "pytest-cov>=5.0",
+    "ruff>=0.5",
+    "mypy>=1.10",
+]
+all = [
+    "anthropic>=0.40",
+    "openai>=1.40",
+    "google-genai>=0.3",
+    "ccxt[ws]>=4.0",
+    "python-telegram-bot>=21.0",
+    "yfinance>=0.2",
+]
+
+[project.urls]
+Homepage = "https://github.com/Erfaniaa/llm-auto-trader"
+Issues = "https://github.com/Erfaniaa/llm-auto-trader/issues"
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*", "config*"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "UP"]
+ignore = ["E501"]  # line length is enforced loosely
