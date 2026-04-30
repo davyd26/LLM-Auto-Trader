@@ -398,6 +398,111 @@ no real LLM. CCXT is mocked at the boundary; LLM responses are pre-recorded.
 
 ---
 
+## Backtest harness
+
+The repo includes a CPCV (Combinatorial Purged Cross-Validation, López de
+Prado AFML Ch. 12) backtest harness for honest, distribution-aware
+evaluation of strategies before live deployment.
+
+### Why CPCV instead of a single backtest
+
+A single backtest gives a single Sharpe number — that number is almost
+always optimistic relative to forward performance. CPCV partitions the
+timeline into N groups, takes all C(N, K) test-group combinations, and
+produces a *distribution* of Sharpe ratios across paths. The user reads
+median/p5/p95, not just the optimistic point estimate, plus PBO
+(Probability of Backtest Overfitting).
+
+### Lookahead defense
+
+The harness ships with two complementary defenses:
+
+1. **`SnapshotBuilder`** — every snapshot the LLM sees contains only data a
+   real human trader could observe at the simulated time `t`. Absolute
+   dates and years are stripped from the prompt text; only relative
+   phrasing remains ("4 weeks ago", "current week").
+2. **CPCV with purging and embargo** — train observations near test-group
+   boundaries are removed; observations immediately after each test group
+   are embargoed. Together these prevent serial-correlation leakage.
+
+### Decision-making backend: Claude Code subscription, not API
+
+To avoid metered API spend on a multi-year backtest, the harness sources
+LLM decisions from a Claude Code subscription:
+
+- **Backtest mode**: Claude Code subagents read each snapshot in isolation
+  and produce a JSON decision. Decisions are cached by snapshot SHA-256;
+  re-running CPCV across all 28 paths replays from cache for free.
+- **Live mode**: a cron job runs `scripts/live_cycle.sh` Mondays 14:00 UTC.
+  The script invokes `claude -p` headlessly with the current snapshot,
+  parses the JSON decision, validates it through `decision_validator`, and
+  hands it to the executor. Each invocation is a fresh session — no
+  conversational state leaks across weeks.
+
+### Running a backtest
+
+```bash
+# 1. Prepare the snapshot manifest for a window.
+python scripts/prepare_snapshots.py \
+    --window 2024-01-01:2025-12-31 \
+    --universe BTC/USDT,ETH/USDT,PAXG/USDT \
+    --cache-db ~/.cache/llm-auto-trader/ohlcv.db \
+    --run-id low-freq-aggressive-v1
+
+# 2. Dispatch decisions. Either:
+#    a) From a Claude Code session, invoke subagents per snapshot.
+#    b) Headless:
+python scripts/dispatch_decisions.py \
+    --run-id low-freq-aggressive-v1 \
+    --decisions-db runs/low-freq-aggressive-v1/decisions.db \
+    --mode headless --model opus
+
+# 3. Run CPCV simulation across the prepared decisions.
+python scripts/run_cpcv.py \
+    --run-id low-freq-aggressive-v1 \
+    --cache-db ~/.cache/llm-auto-trader/ohlcv.db \
+    --decisions-db runs/low-freq-aggressive-v1/decisions.db \
+    --cpcv-n 8 --cpcv-k 2 --purge 2 --embargo 2
+
+# Outputs: runs/<id>/summary.json, equity_curves.csv, trades.csv
+```
+
+To validate the harness without spending any decisions, use the
+deterministic baseline strategy:
+
+```bash
+python scripts/run_cpcv.py ... --decisions-source baseline-stub
+```
+
+### Statistics produced
+
+`summary.json` contains:
+
+- `median_sharpe`, `p5_sharpe`, `p95_sharpe` — distribution across CPCV paths
+- `sharpe_ci_lo_95`, `sharpe_ci_hi_95` — block-bootstrap CI (preserves
+  serial correlation, unlike parametric PSR/DSR)
+- `psr_on_median_sharpe` — Bailey & López de Prado's PSR
+- `median_max_drawdown`, `p95_max_drawdown`
+- `aggregate_hit_rate`, `aggregate_profit_factor`, `aggregate_expectancy`
+- For multi-config sweeps: `compute_pbo(sharpes_matrix)` produces a
+  Bailey/López de Prado PBO
+
+### Pass criteria for "honest super profitability"
+
+For a strategy to be deemed safe to deploy at $2K AUM with weekly cadence:
+
+- Median path Sharpe ≥ 1.0
+- p5 path Sharpe ≥ 0 (5th-percentile path at least breaks even)
+- Median max drawdown ≤ 12% (well within a 15% live ceiling)
+- PSR > 0.95 on the median Sharpe
+- PBO < 0.4
+- Hit rate ≥ 45%, profit factor ≥ 1.5
+
+These are necessary, not sufficient. A forward paper-trade window post
+training-cutoff is the final clean check.
+
+---
+
 ## Troubleshooting
 
 **`LLM API key required for provider 'anthropic'`**
