@@ -3,13 +3,12 @@
 from __future__ import annotations
 
 import numpy as np
-import pytest
 
 from src.analysis.garch import (
     GARCHState,
     fit_garch_11,
-    update_garch,
     garch_state_from_returns,
+    update_garch,
 )
 
 

@@ -11,9 +11,9 @@ extra doesn't pull in OpenAI / Google SDKs.
 from src.llm.providers.base import (
     BaseLLMProvider,
     LLMCallResult,
+    LLMProviderError,
     LLMUsage,
     Pricing,
-    LLMProviderError,
 )
 from src.llm.providers.factory import build_provider
 

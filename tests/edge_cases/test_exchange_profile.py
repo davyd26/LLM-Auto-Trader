@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from src.exchange.profile import (
     PROFILE_REGISTRY,
     ExchangeProfile,

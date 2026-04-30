@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from src.analysis.labeling import TripleBarrierLabel, compute_triple_barrier
+from src.analysis.labeling import compute_triple_barrier
 
 
 def _path(start_ts: float, prices: list[float], step_s: float = 60.0) -> list[tuple[float, float]]:

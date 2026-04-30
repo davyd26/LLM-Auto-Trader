@@ -7,12 +7,12 @@ from dataclasses import dataclass
 
 import ccxt.async_support as ccxt
 
-from src.execution.order_utils import round_size, round_price, notional_to_contracts
+from src.execution.order_utils import notional_to_contracts, round_price, round_size
 from src.execution.position_manager import PositionManager
-from src.llm.response_parser import TradeAction, ActionType
+from src.llm.response_parser import ActionType, TradeAction
 from src.risk.risk_manager import ValidationResult
-from src.utils.logger import get_logger
 from src.utils.errors import OrderError
+from src.utils.logger import get_logger
 
 log = get_logger(__name__)
 
@@ -224,7 +224,7 @@ class TradeExecutor:
 
         if self._paper_mode:
             fees = pos.notional * self._taker_fee
-            trade = self._pm.close_position(action.symbol, current_price, fees)
+            self._pm.close_position(action.symbol, current_price, fees)
             return ExecutionResult(
                 success=True, action="close", symbol=action.symbol,
                 side=pos.side, size=pos.size, price=current_price,
@@ -238,7 +238,7 @@ class TradeExecutor:
                 )
                 fill_price = order.get("average", current_price) or current_price
                 fees = order.get("fee", {}).get("cost", 0) or 0
-                trade = self._pm.close_position(action.symbol, fill_price, fees)
+                self._pm.close_position(action.symbol, fill_price, fees)
                 return ExecutionResult(
                     success=True, action="close", symbol=action.symbol,
                     side=pos.side, size=pos.size, price=fill_price,
@@ -334,7 +334,7 @@ class TradeExecutor:
         for pos in self._pm.open_positions:
             try:
                 if self._paper_mode:
-                    trade = self._pm.close_position(pos.symbol, pos.mark_price, 0)
+                    self._pm.close_position(pos.symbol, pos.mark_price, 0)
                     results.append(ExecutionResult(
                         success=True, action="emergency_close",
                         symbol=pos.symbol, side=pos.side,
@@ -348,7 +348,7 @@ class TradeExecutor:
                     )
                     fill_price = order.get("average", pos.mark_price) or pos.mark_price
                     fees = order.get("fee", {}).get("cost", 0) or 0
-                    trade = self._pm.close_position(pos.symbol, fill_price, fees)
+                    self._pm.close_position(pos.symbol, fill_price, fees)
                     results.append(ExecutionResult(
                         success=True, action="emergency_close",
                         symbol=pos.symbol, side=pos.side,

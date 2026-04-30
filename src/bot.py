@@ -7,41 +7,41 @@ import signal
 import time
 from datetime import datetime, timezone
 
-from config.settings import Settings
-from config.symbols import get_enabled_symbols
 import aiohttp
 
-from src.data.market import MarketDataCollector
-from src.data.websocket import WebSocketManager
-from src.data.onchain import OnChainCollector
-from src.data.sentiment import SentimentCollector
-from src.data.macro import MacroCollector
-from src.data.prediction_markets import PredictionMarketsCollector
-from src.data.top_traders import TopTraderCollector
-from src.data.news import NewsCollector
+from config.settings import Settings
+from config.symbols import get_enabled_symbols
+from src.analysis.cusum import CUSUMFilter
+from src.analysis.market_state import MarketState
 from src.data.aggregator import DataAggregator
+from src.data.events import EventCalendar
+from src.data.macro import MacroCollector
+from src.data.market import MarketDataCollector
+from src.data.news import NewsCollector
+from src.data.onchain import OnChainCollector
+from src.data.prediction_markets import PredictionMarketsCollector
+from src.data.sentiment import SentimentCollector
+from src.data.stablecoin import USDTMonitor
+from src.data.top_traders import TopTraderCollector
+from src.data.websocket import WebSocketManager
+from src.execution.executor import TradeExecutor
+from src.execution.position_manager import PositionManager
 from src.llm.client import TradingLLMClient
 from src.llm.cost_tracker import CostTracker
 from src.llm.memory import TradingMemory
+from src.llm.response_parser import ActionType
 from src.llm.scheduler import LLMScheduler
-from src.analysis.cusum import CUSUMFilter
-from src.analysis.market_state import MarketState
+from src.risk.circuit_breakers import BreakerAction, CircuitBreakers
 from src.risk.cooldown import SymbolCooldown
 from src.risk.daily_peak import DailyPeakTracker
 from src.risk.margin_monitor import compute_margin_state
-from src.data.stablecoin import USDTMonitor
-from src.data.events import EventCalendar
-from src.llm.response_parser import ActionType
-from src.execution.executor import TradeExecutor
-from src.execution.position_manager import PositionManager
-from src.risk.risk_manager import RiskManager
-from src.risk.circuit_breakers import CircuitBreakers, BreakerAction
 from src.risk.position_sizer import PositionSizer
+from src.risk.risk_manager import RiskManager
 from src.storage.database import Database
 from src.storage.retention import RetentionManager
 from src.telegram.reporter import TelegramReporter
-from src.utils.logger import setup_logging, get_logger
 from src.utils.errors import LLMBudgetExceededError
+from src.utils.logger import get_logger, setup_logging
 
 log = get_logger(__name__)
 
@@ -427,13 +427,13 @@ class TradingBot:
                 and getattr(afml_cfg, "enable_daily_peak_anchor", True)):
             self.daily_peak.update(equity=equity, now=now)
 
-        # Phase 2/3 — feed data into MarketState (regime) and USDTMonitor.
-        # code-reviewer P1 #3-#6 flagged that these aggregators were built but
-        # never populated with live signals.
+        # Feed data into MarketState (regime) and USDTMonitor — these
+        # aggregators are no-ops until they actually see live signals.
         if afml_cfg is not None and getattr(afml_cfg, "enable_all", True):
             # Regime inputs: derive a compact vol_z from observed price change
             # and use funding-rate abs as a news-surge proxy. These are crude
             # proxies but meet the "something is better than nothing" bar.
+            primary_sym = self._symbols[0] if self._symbols else None
             vol_z_proxy = 0.0
             if primary_sym:
                 state = self.websocket.get_price_state(primary_sym)
@@ -738,8 +738,8 @@ class TradingBot:
                         reasoning=action.reasoning,
                     )
                 elif result.success and action.action == ActionType.CLOSE:
-                    pos_data = self.position_manager.get_position(action.symbol)
-                    # Trade already recorded in executor
+                    # Trade already recorded by the executor's close path.
+                    pass
 
         except LLMBudgetExceededError:
             log.warning("llm_budget_exceeded")

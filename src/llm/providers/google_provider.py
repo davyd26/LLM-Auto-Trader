@@ -19,7 +19,6 @@ from src.llm.providers.base import (
     Pricing,
 )
 
-
 _PRICING: dict[str, Pricing] = {
     "gemini-2.5-pro": Pricing(1.25, 1.25, 10.0),
     "gemini-2.5-flash": Pricing(0.30, 0.30, 2.50),

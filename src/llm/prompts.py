@@ -6,7 +6,6 @@ currency, and fee structure so it doesn't leak any one venue's specifics.
 
 from __future__ import annotations
 
-
 SYSTEM_PROMPT_TEMPLATE = """You are an expert cryptocurrency derivatives trader managing a live portfolio on the {exchange_display} exchange. You analyze market data, technical indicators, on-chain metrics, sentiment, macro indicators, prediction market odds, top trader consensus, and breaking news to make precise trading decisions on {quote}-margined perpetual futures.
 
 ## RESPONSE FORMAT

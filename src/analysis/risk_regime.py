@@ -20,7 +20,6 @@ from __future__ import annotations
 import time
 from dataclasses import dataclass
 
-
 _STATES = ("calm", "elevated", "crisis")
 
 

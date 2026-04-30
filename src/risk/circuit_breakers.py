@@ -216,7 +216,7 @@ class CircuitBreakers:
         self._recent_losses.append((time.time(), abs(loss_pct)))
         # Cleanup old entries
         cutoff = time.time() - self.rapid_loss_window_seconds
-        self._recent_losses = [(t, l) for t, l in self._recent_losses if t > cutoff]
+        self._recent_losses = [(t, loss) for t, loss in self._recent_losses if t > cutoff]
 
     def reset_volatility_reduction(self) -> None:
         """Reset size reduction factor after volatility normalizes."""
@@ -240,10 +240,10 @@ class CircuitBreakers:
 
     def _check_rapid_loss(self) -> BreakerEvent | None:
         cutoff = time.time() - self.rapid_loss_window_seconds
-        recent = [(t, l) for t, l in self._recent_losses if t > cutoff]
+        recent = [(t, loss) for t, loss in self._recent_losses if t > cutoff]
 
         if len(recent) >= self.rapid_loss_count:
-            total_loss = sum(l for _, l in recent)
+            total_loss = sum(loss for _, loss in recent)
             if total_loss >= self.rapid_loss_pct:
                 self._halt_trading(1800)  # halt 30 min
                 return BreakerEvent(

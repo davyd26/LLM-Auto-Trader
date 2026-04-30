@@ -7,15 +7,13 @@ import time
 from dataclasses import dataclass, field
 from typing import Any
 
-import aiohttp
-
-from src.data.market import MarketDataCollector, OrderBookSummary, TickerData, FundingData
-from src.data.onchain import OnChainCollector, OnChainSnapshot
-from src.data.sentiment import SentimentCollector, SentimentSnapshot
 from src.data.macro import MacroCollector, MacroSnapshot
-from src.data.prediction_markets import PredictionMarketsCollector, PredictionMarketsSnapshot
-from src.data.top_traders import TopTraderCollector, TopTradersSnapshot
+from src.data.market import FundingData, MarketDataCollector, OrderBookSummary, TickerData
 from src.data.news import NewsCollector, NewsSnapshot
+from src.data.onchain import OnChainCollector, OnChainSnapshot
+from src.data.prediction_markets import PredictionMarketsCollector, PredictionMarketsSnapshot
+from src.data.sentiment import SentimentCollector, SentimentSnapshot
+from src.data.top_traders import TopTraderCollector, TopTradersSnapshot
 from src.data.websocket import WebSocketManager
 from src.utils.logger import get_logger
 

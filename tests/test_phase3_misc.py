@@ -2,19 +2,17 @@
 
 from __future__ import annotations
 
-import math
-
 import numpy as np
 import pandas as pd
 import pytest
 
+from src.analysis.correlation import (
+    build_returns_df,
+    effective_concurrent_count,
+    rolling_correlation_matrix,
+)
 from src.risk.margin_monitor import compute_margin_state
 from src.utils.clock import check_drift_sync, drift_severity
-from src.analysis.correlation import (
-    rolling_correlation_matrix,
-    effective_concurrent_count,
-    build_returns_df,
-)
 
 
 class TestMarginMonitor:

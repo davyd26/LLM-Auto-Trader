@@ -8,10 +8,10 @@ import numpy as np
 import pytest
 
 from src.analysis.backtest_stats import (
-    probabilistic_sharpe_ratio,
     deflated_sharpe_ratio,
-    sharpe_annualized,
     pnl_moments,
+    probabilistic_sharpe_ratio,
+    sharpe_annualized,
 )
 
 

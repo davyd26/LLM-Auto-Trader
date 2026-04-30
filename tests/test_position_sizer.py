@@ -1,6 +1,7 @@
 """Tests for position sizing logic."""
 
 import pytest
+
 from src.risk.position_sizer import PositionSizer, minimum_trade_size
 
 

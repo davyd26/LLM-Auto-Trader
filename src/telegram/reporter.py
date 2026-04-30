@@ -2,14 +2,12 @@
 
 from __future__ import annotations
 
-import asyncio
 import time
-from typing import Any
 
-from telegram import Bot
 from telegram.constants import ParseMode
 
 from src.utils.logger import get_logger
+from telegram import Bot
 
 log = get_logger(__name__)
 

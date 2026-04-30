@@ -20,7 +20,6 @@ from src.llm.providers.base import (
     Pricing,
 )
 
-
 # Pricing in USD per million tokens. Override via env if your tier differs.
 # Sources: anthropic.com/pricing as of model release. Cached-input is the
 # read-side cache rate (10x discount on Anthropic).

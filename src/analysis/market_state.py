@@ -7,14 +7,14 @@ a GARCH state (fit once, updated incrementally), and a risk regime detector.
 from __future__ import annotations
 
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any
 
 import numpy as np
 import pandas as pd
 
 from src.analysis.baselines import Baselines, compute_baselines
-from src.analysis.garch import GARCHState, garch_state_from_returns, update_garch, fit_garch_11
+from src.analysis.garch import GARCHState, fit_garch_11, garch_state_from_returns, update_garch
 from src.analysis.risk_regime import RiskRegimeDetector
 from src.utils.logger import get_logger
 

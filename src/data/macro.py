@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-import time
-from dataclasses import dataclass, field
-from concurrent.futures import ThreadPoolExecutor
-
 import asyncio
+import time
+from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass, field
+
 import yfinance as yf
 
 from src.utils.logger import get_logger

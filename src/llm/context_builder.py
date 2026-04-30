@@ -3,14 +3,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
 
+from src.analysis.frac_diff import find_min_d, frac_diff_ffd
 from src.analysis.indicators import IndicatorSummary, compute_indicators, ohlcv_list_to_df
-from src.analysis.statistics import compute_statistics, StatisticalFeatures
-from src.analysis.regime import classify_regime, MarketRegime
 from src.analysis.microstructure import MicrostructureFeatures, compute_microstructure
-from src.analysis.frac_diff import frac_diff_ffd, find_min_d
-from src.data.aggregator import MarketSnapshot, SymbolSnapshot
+from src.analysis.regime import MarketRegime, classify_regime
+from src.analysis.statistics import StatisticalFeatures, compute_statistics
+from src.data.aggregator import MarketSnapshot
 
 
 @dataclass
@@ -111,7 +110,6 @@ class ContextBuilder:
                         # Feed 15m returns into MarketState for GARCH updates.
                         if self._market_state is not None and len(df) >= 100:
                             try:
-                                import numpy as _np
                                 returns = df["close"].pct_change().dropna().to_numpy(dtype=float)
                                 self._market_state.refresh_symbol(
                                     symbol=sym,

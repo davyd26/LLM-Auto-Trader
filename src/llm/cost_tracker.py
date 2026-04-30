@@ -53,7 +53,7 @@ class CostTracker:
         *,
         daily_budget: float = 5.00,
         monthly_budget: float = 100.0,
-    ) -> "CostTracker":
+    ) -> CostTracker:
         """Pull the pricing table from a provider's ``pricing`` property."""
         p = provider.pricing
         return cls(

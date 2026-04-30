@@ -3,12 +3,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
 
-from src.llm.response_parser import TradeAction, ActionType, LLMResponse
+from src.llm.response_parser import ActionType, LLMResponse, TradeAction
+from src.risk.circuit_breakers import CircuitBreakers
 from src.risk.position_sizer import PositionSizer
 from src.risk.stop_loss import validate_sl_tp
-from src.risk.circuit_breakers import CircuitBreakers, BreakerAction, BreakerEvent
 from src.utils.logger import get_logger
 
 log = get_logger(__name__)

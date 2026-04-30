@@ -2,12 +2,8 @@
 
 from __future__ import annotations
 
-import time
-
-import pytest
-
+from src.data.events import Event, EventCalendar
 from src.data.stablecoin import USDTMonitor
-from src.data.events import Event, EventCalendar, EventState
 
 
 class TestUSDTMonitor:

@@ -1,8 +1,8 @@
 """Tests for circuit breaker system."""
 
-import time
 import pytest
-from src.risk.circuit_breakers import CircuitBreakers, BreakerType, BreakerAction
+
+from src.risk.circuit_breakers import BreakerAction, BreakerType, CircuitBreakers
 
 
 @pytest.fixture

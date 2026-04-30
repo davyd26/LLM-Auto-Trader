@@ -7,13 +7,16 @@ budget-gate, and memory hooks the rest of the bot depends on.
 
 from __future__ import annotations
 
+from src.data.aggregator import MarketSnapshot
 from src.llm.context_builder import ContextBuilder
 from src.llm.cost_tracker import CostTracker
 from src.llm.memory import TradingMemory
-from src.llm.prompts import build_user_prompt, render_system_prompt, SYSTEM_PROMPT
+from src.llm.prompts import SYSTEM_PROMPT, build_user_prompt, render_system_prompt
 from src.llm.providers.base import (
     BaseLLMProvider,
     LLMProviderError,
+)
+from src.llm.providers.base import (
     LLMTimeoutError as ProviderTimeoutError,
 )
 from src.llm.providers.factory import build_provider
@@ -23,7 +26,6 @@ from src.llm.response_parser import (
     parse_llm_response,
 )
 from src.llm.scheduler import LLMScheduler
-from src.data.aggregator import MarketSnapshot
 from src.utils.errors import (
     LLMBudgetExceededError,
     LLMParseError,
@@ -88,7 +90,7 @@ class TradingLLMClient:
         self._consecutive_failures = 0
 
     @classmethod
-    def for_settings(cls, settings: object, **kwargs) -> "TradingLLMClient":
+    def for_settings(cls, settings: object, **kwargs) -> TradingLLMClient:
         """Build a client straight from a ``Settings`` object."""
         llm = getattr(settings, "llm", settings)
         return cls(llm_settings=llm, **kwargs)

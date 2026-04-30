@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import numpy as np
-import pytest
 
 from src.analysis.cscv import cscv_pbo, variants_from_realized_trades
 

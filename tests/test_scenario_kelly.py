@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from src.risk.bet_sizing import ScenarioKelly, scenario_kelly
+from src.risk.bet_sizing import scenario_kelly
 
 
 class TestScenarioKelly:

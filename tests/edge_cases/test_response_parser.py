@@ -7,7 +7,6 @@ import pytest
 from src.llm.response_parser import LLMResponse, parse_llm_response
 from src.utils.errors import LLMParseError
 
-
 _VALID = """\
 {
   "market_assessment": {

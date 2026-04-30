@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from src.analysis.baselines import Baselines, compute_baselines
+from src.analysis.baselines import compute_baselines
 
 
 class TestComputeBaselines:

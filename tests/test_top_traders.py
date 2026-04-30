@@ -1,13 +1,11 @@
 """Tests for top trader analysis and consensus computation."""
 
-import pytest
 from src.data.top_traders import (
     TopTrader,
-    TraderPosition,
-    TraderConsensus,
     TopTradersSnapshot,
-    compute_trader_weight,
+    TraderPosition,
     compute_consensus,
+    compute_trader_weight,
 )
 
 

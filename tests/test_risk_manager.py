@@ -1,12 +1,12 @@
 """Tests for risk manager validation."""
 
 import pytest
-from src.risk.risk_manager import RiskManager, ValidationResult
-from src.risk.circuit_breakers import CircuitBreakers
-from src.risk.position_sizer import PositionSizer
+
 from src.llm.response_parser import (
-    TradeAction, ActionType, LLMResponse, MarketAssessment,
+    ActionType,
+    TradeAction,
 )
+from src.risk.risk_manager import RiskManager
 
 
 def make_action(

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import time
 from collections import deque
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 @dataclass
@@ -127,7 +127,6 @@ class TradingMemory:
             }
 
         wins = [t for t in trades if t.get("pnl", 0) > 0]
-        losses = [t for t in trades if t.get("pnl", 0) <= 0]
         pnls = [t.get("pnl", 0) for t in trades]
 
         # Win rate
@@ -190,9 +189,9 @@ class TradingMemory:
         if afml_on and len(pnls) >= 3:
             try:
                 from src.analysis.backtest_stats import (
+                    deflated_sharpe_ratio,
                     pnl_moments,
                     probabilistic_sharpe_ratio,
-                    deflated_sharpe_ratio,
                     sharpe_annualized,
                 )
 

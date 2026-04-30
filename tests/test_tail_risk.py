@@ -6,10 +6,10 @@ import numpy as np
 import pytest
 
 from src.analysis.tail_risk import (
-    var_parametric,
     cvar_parametric,
-    portfolio_var_usdt,
     portfolio_cvar_usdt,
+    portfolio_var_usdt,
+    var_parametric,
 )
 
 

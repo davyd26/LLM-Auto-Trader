@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import math
-
 import pytest
 
 from src.risk.bet_sizing import bet_size_from_probability

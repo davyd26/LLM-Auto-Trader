@@ -4,14 +4,13 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
-import pytest
 
 from src.analysis.microstructure import (
     MicrostructureFeatures,
-    compute_microstructure,
     _amihud_illiquidity,
     _kyle_lambda,
     _vpin_lite,
+    compute_microstructure,
 )
 
 

@@ -1,12 +1,11 @@
 """Tests for news collection, scoring, and deduplication."""
 
-import pytest
 from src.data.news import (
     NewsArticle,
     NewsSnapshot,
-    compute_relevance_score,
-    classify_sentiment,
     categorize_news,
+    classify_sentiment,
+    compute_relevance_score,
     deduplicate,
 )
 

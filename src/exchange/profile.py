@@ -75,7 +75,7 @@ class ExchangeProfile:
         q = self.quote_currency
         return rf"^[A-Z0-9]+/{q}(:.+)?$"
 
-    def with_overrides(self, **kwargs: Any) -> "ExchangeProfile":
+    def with_overrides(self, **kwargs: Any) -> ExchangeProfile:
         """Return a copy with selected fields replaced."""
         return replace(self, **kwargs)
 

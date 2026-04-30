@@ -55,7 +55,7 @@ class TradeAction(BaseModel):
     reasoning: str = Field(min_length=5, max_length=500)
 
     @model_validator(mode="after")
-    def validate_new_position_requirements(self) -> "TradeAction":
+    def validate_new_position_requirements(self) -> TradeAction:
         if self.action in (ActionType.OPEN_LONG, ActionType.OPEN_SHORT):
             if self.stop_loss is None:
                 raise ValueError("stop_loss is required for new positions")

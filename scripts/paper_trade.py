@@ -17,7 +17,7 @@ import sys
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from config.settings import load_settings, Settings
+from config.settings import load_settings
 from src.bot import TradingBot
 
 

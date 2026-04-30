@@ -1,9 +1,9 @@
 """Tests for LLM response parsing and validation."""
 
 import pytest
-from src.llm.response_parser import parse_llm_response, LLMResponse, ActionType
-from src.utils.errors import LLMParseError
 
+from src.llm.response_parser import ActionType, LLMResponse, parse_llm_response
+from src.utils.errors import LLMParseError
 
 VALID_RESPONSE = """{
     "market_assessment": {

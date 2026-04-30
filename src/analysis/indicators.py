@@ -8,7 +8,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 from ta.momentum import RSIIndicator, StochRSIIndicator
-from ta.trend import MACD, EMAIndicator, ADXIndicator
+from ta.trend import MACD, ADXIndicator, EMAIndicator
 from ta.volatility import AverageTrueRange, BollingerBands
 from ta.volume import OnBalanceVolumeIndicator
 
@@ -205,17 +205,17 @@ def _compute_pivots(
     high: pd.Series, low: pd.Series, close: pd.Series, current_price: float
 ) -> tuple[float | None, float | None]:
     """Compute nearest support/resistance from pivot points."""
-    h = high.tail(20)
-    l = low.tail(20)
+    highs = high.tail(20)
+    lows = low.tail(20)
 
     supports = []
     resistances = []
 
-    for i in range(2, len(l) - 2):
-        if float(l.iloc[i]) <= float(l.iloc[i - 1]) and float(l.iloc[i]) <= float(l.iloc[i + 1]):
-            supports.append(float(l.iloc[i]))
-        if float(h.iloc[i]) >= float(h.iloc[i - 1]) and float(h.iloc[i]) >= float(h.iloc[i + 1]):
-            resistances.append(float(h.iloc[i]))
+    for i in range(2, len(lows) - 2):
+        if float(lows.iloc[i]) <= float(lows.iloc[i - 1]) and float(lows.iloc[i]) <= float(lows.iloc[i + 1]):
+            supports.append(float(lows.iloc[i]))
+        if float(highs.iloc[i]) >= float(highs.iloc[i - 1]) and float(highs.iloc[i]) >= float(highs.iloc[i + 1]):
+            resistances.append(float(highs.iloc[i]))
 
     nearest_support = None
     nearest_resistance = None

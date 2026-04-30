@@ -19,7 +19,6 @@ from src.llm.providers.base import (
     Pricing,
 )
 
-
 _PRICING: dict[str, Pricing] = {
     "gpt-4.1": Pricing(2.0, 0.50, 8.0),
     "gpt-4.1-mini": Pricing(0.4, 0.10, 1.6),

@@ -1,13 +1,11 @@
 """Tests for prediction market data collection and anomaly detection."""
 
-import pytest
 from src.data.prediction_markets import (
     PredictionMarket,
-    PredictionMarketAnomaly,
     PredictionMarketsSnapshot,
+    _categorize,
     compute_relevance,
     detect_anomalies,
-    _categorize,
 )
 
 
