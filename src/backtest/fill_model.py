@@ -22,6 +22,10 @@ class FillConfig:
     taker_fee_bps: float = 4.0      # 0.04% Binance perp taker default
     slippage_bps: float = 5.0        # extra bps of adverse price movement on fills
     funding_rate_per_day: float = 0.0  # daily funding rate (positive favors shorts)
+    # Adverse-scenario realism (off by default to keep legacy behavior)
+    gap_risk_enabled: bool = False
+    vol_aware_slippage_enabled: bool = False
+    vol_slippage_factor: float = 0.5  # extra slippage proportional to bar (range/open)
 
 
 @dataclass
@@ -99,8 +103,15 @@ def simulate_close(
     bar_open = float(next_bar["open"])
     bar_high = float(next_bar["high"])
     bar_low = float(next_bar["low"])
-    slip_factor = config.slippage_bps / 10_000.0
     fee_factor = config.taker_fee_bps / 10_000.0
+
+    # Vol-aware slippage scales with bar (range / open). Disabled by default.
+    base_slip_factor = config.slippage_bps / 10_000.0
+    if config.vol_aware_slippage_enabled and bar_open > 0:
+        bar_range_pct = max(0.0, (bar_high - bar_low) / bar_open)
+        slip_factor = base_slip_factor + config.vol_slippage_factor * bar_range_pct
+    else:
+        slip_factor = base_slip_factor
 
     exit_price: float
     exit_reason: str
@@ -109,9 +120,17 @@ def simulate_close(
     tp_hit = _take_hit(trade.side, trade.take_profit, bar_high, bar_low)
 
     if sl_hit:
-        # Conservative: SL fires first when both touchable in same bar
-        exit_price = float(trade.stop_loss)  # type: ignore[arg-type]
-        exit_reason = "stop_loss"
+        # Conservative: SL fires first when both touchable in same bar.
+        # Gap risk: if the bar OPENED past the stop, the actual fill is at
+        # the open price (worse than the stop). This is real-world behavior
+        # over weekends and after major news.
+        stop = float(trade.stop_loss)  # type: ignore[arg-type]
+        if config.gap_risk_enabled and _gap_through_stop(trade.side, stop, bar_open):
+            exit_price = bar_open
+            exit_reason = "stop_loss_gap"
+        else:
+            exit_price = stop
+            exit_reason = "stop_loss"
     elif tp_hit:
         exit_price = float(trade.take_profit)  # type: ignore[arg-type]
         exit_reason = "take_profit"
@@ -156,6 +175,13 @@ def _stop_hit(side: str, stop: float | None, high: float, low: float) -> bool:
     if side == "long":
         return low <= stop
     return high >= stop  # short
+
+
+def _gap_through_stop(side: str, stop: float, bar_open: float) -> bool:
+    """True when the bar OPENED past the stop (gap-through, worse than stop fill)."""
+    if side == "long":
+        return bar_open < stop
+    return bar_open > stop  # short
 
 
 def _take_hit(side: str, tp: float | None, high: float, low: float) -> bool:
