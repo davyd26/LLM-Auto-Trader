@@ -51,7 +51,7 @@ def _ensure_decisions_via_baseline(
     the path with no missing decisions.
     """
     baseline_cfg = BaselineConfig()
-    primary_bars = cache.load_range(universe[0], timeframe, 0, 999_999_999_999).reset_index(drop=True)
+    primary_bars = cache.load_range(universe[0], timeframe, 0, 9_999_999_999_999).reset_index(drop=True)
 
     for path in paths:
         open_positions: dict = {}
@@ -91,7 +91,7 @@ def _ensure_decisions_via_baseline(
                 continue
 
             for sym, trade in list(open_positions.items()):
-                sym_df = cache.load_range(sym, timeframe, 0, 999_999_999_999).reset_index(drop=True)
+                sym_df = cache.load_range(sym, timeframe, 0, 9_999_999_999_999).reset_index(drop=True)
                 if next_idx >= len(sym_df):
                     continue
                 row = sym_df.iloc[next_idx]
@@ -114,7 +114,7 @@ def _ensure_decisions_via_baseline(
                 atype = action.get("type")
                 sym = action.get("symbol")
                 if atype == "close" and sym in open_positions:
-                    sym_df = cache.load_range(sym, timeframe, 0, 999_999_999_999).reset_index(drop=True)
+                    sym_df = cache.load_range(sym, timeframe, 0, 9_999_999_999_999).reset_index(drop=True)
                     if next_idx >= len(sym_df):
                         continue
                     row = sym_df.iloc[next_idx]
@@ -126,7 +126,7 @@ def _ensure_decisions_via_baseline(
                     size = float(action.get("size", 0.0))
                     if size <= 0 or sym in open_positions:
                         continue
-                    sym_df = cache.load_range(sym, timeframe, 0, 999_999_999_999).reset_index(drop=True)
+                    sym_df = cache.load_range(sym, timeframe, 0, 9_999_999_999_999).reset_index(drop=True)
                     if next_idx >= len(sym_df):
                         continue
                     row = sym_df.iloc[next_idx]
@@ -209,7 +209,7 @@ def main(argv: list[str] | None = None) -> int:
 
     # Pre-load bar DataFrames per symbol (avoid re-querying inside the loop)
     bars_by_symbol = {
-        sym: cache.load_range(sym, primary_tf, 0, 999_999_999_999).reset_index(drop=True)
+        sym: cache.load_range(sym, primary_tf, 0, 9_999_999_999_999).reset_index(drop=True)
         for sym in universe
     }
 

@@ -228,3 +228,13 @@ config.local.yaml
 .DS_Store
 Thumbs.db
 desktop.ini
+runs/**/decisions_*.db
+runs/**/decisions_*.db-*
+runs/**/*.db-shm
+runs/**/*.db-wal
+
+# Backtest run artifacts (decision DBs, regenerable equity/trade CSVs).
+# Summary JSONs and sweep CSVs are tracked manually with git add -f.
+runs/**/decisions_*.db*
+runs/**/equity_curve.csv
+runs/**/trades.csv

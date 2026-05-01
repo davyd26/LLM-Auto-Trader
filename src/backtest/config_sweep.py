@@ -62,7 +62,7 @@ def sweep_configs(
     decision_cache = DecisionCache(decisions_db_path)
 
     bars_by_symbol = {
-        sym: cache.load_range(sym, timeframe, 0, 999_999_999_999).reset_index(drop=True)
+        sym: cache.load_range(sym, timeframe, 0, 9_999_999_999_999).reset_index(drop=True)
         for sym in universe
     }
     primary_bars = bars_by_symbol[universe[0]]
@@ -157,7 +157,7 @@ def _populate_for_path_and_config(
             continue
 
         for sym, trade in list(open_positions.items()):
-            sym_df = cache.load_range(sym, timeframe, 0, 999_999_999_999).reset_index(drop=True)
+            sym_df = cache.load_range(sym, timeframe, 0, 9_999_999_999_999).reset_index(drop=True)
             if next_idx >= len(sym_df):
                 continue
             row = sym_df.iloc[next_idx]
@@ -171,7 +171,7 @@ def _populate_for_path_and_config(
             atype = action.get("type")
             sym = action.get("symbol")
             if atype == "close" and sym in open_positions:
-                sym_df = cache.load_range(sym, timeframe, 0, 999_999_999_999).reset_index(drop=True)
+                sym_df = cache.load_range(sym, timeframe, 0, 9_999_999_999_999).reset_index(drop=True)
                 if next_idx >= len(sym_df):
                     continue
                 row = sym_df.iloc[next_idx]
@@ -183,7 +183,7 @@ def _populate_for_path_and_config(
                 size = float(action.get("size", 0.0))
                 if size <= 0 or sym in open_positions:
                     continue
-                sym_df = cache.load_range(sym, timeframe, 0, 999_999_999_999).reset_index(drop=True)
+                sym_df = cache.load_range(sym, timeframe, 0, 9_999_999_999_999).reset_index(drop=True)
                 if next_idx >= len(sym_df):
                     continue
                 row = sym_df.iloc[next_idx]

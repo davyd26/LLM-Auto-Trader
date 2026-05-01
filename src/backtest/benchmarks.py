@@ -33,7 +33,7 @@ def buy_and_hold(
 
     Equity curve is the mark-to-market value at each bar in [start_idx, end_idx].
     """
-    bars = cache.load_range(symbol, timeframe, 0, 999_999_999_999).reset_index(drop=True)
+    bars = cache.load_range(symbol, timeframe, 0, 9_999_999_999_999).reset_index(drop=True)
     result = BacktestResult(
         path_id=f"buy_hold:{symbol}",
         initial_equity=initial_equity,
@@ -113,7 +113,7 @@ def equal_weight(
 
     # Open positions at start_idx (no lookahead concern — this is passive entry)
     for sym in symbols:
-        bars = cache.load_range(sym, timeframe, 0, 999_999_999_999).reset_index(drop=True)
+        bars = cache.load_range(sym, timeframe, 0, 9_999_999_999_999).reset_index(drop=True)
         if bars.empty or start_idx >= len(bars):
             total_equity += per_symbol_equity
             continue
@@ -133,7 +133,7 @@ def equal_weight(
     # Close at end_idx + 1
     closed_pnl = 0.0
     for trade in trades:
-        bars = cache.load_range(trade.symbol, timeframe, 0, 999_999_999_999).reset_index(drop=True)
+        bars = cache.load_range(trade.symbol, timeframe, 0, 9_999_999_999_999).reset_index(drop=True)
         exit_idx = min(end_idx + 1, len(bars) - 1)
         if exit_idx >= len(bars):
             continue
