@@ -79,6 +79,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--vol-target-pct", type=float, default=None,
                         help="weekly vol target (e.g. 0.04 = 4%/week); enables vol-targeting if set")
     parser.add_argument("--vol-lookback", type=int, default=12)
+    parser.add_argument("--vol-size-max-mult", type=float, default=2.0,
+                        help="cap on vol-target size multiplier (peak leverage = S * this)")
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--runs-dir", default="runs")
     parser.add_argument("--periods-per-year", type=int, default=52)
@@ -137,6 +139,7 @@ def main(argv: list[str] | None = None) -> int:
         rotation_symbols=tuple(s.strip() for s in args.rotation_symbols.split(",") if s.strip()),
         vol_target_pct=args.vol_target_pct,
         vol_lookback_bars=args.vol_lookback,
+        vol_size_max_mult=args.vol_size_max_mult,
     )
 
     # Use the actual full bars (bars_by_symbol[universe[0]]) for the walk
