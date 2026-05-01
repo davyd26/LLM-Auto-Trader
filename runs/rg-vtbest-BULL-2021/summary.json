@@ -1,0 +1,38 @@
+{
+  "config": {
+    "momentum_lookback_bars": 4,
+    "drawdown_hedge_threshold": 0.2,
+    "long_size_usd_pct": 1.25,
+    "primary_symbol": "BTC/USDT:USDT",
+    "hedge_symbol": "PAXG/USDT"
+  },
+  "strategy": {
+    "final_equity": 2788.8571794499508,
+    "total_return_pct": 0.3944285897249754,
+    "cagr": 0.3998974893298435,
+    "sharpe": 1.4160130945918368,
+    "sortino": 2.589483555147205,
+    "calmar": 8.208811716608963,
+    "max_drawdown": 0.04804941364740092,
+    "psr": 0.9999941358662598,
+    "n_trades": 6,
+    "skew": 4.267214621500489,
+    "kurtosis": 21.68037623023929,
+    "bootstrap_ci_lo_95": -1.0482622925483764,
+    "bootstrap_ci_hi_95": 2.5072680246545502
+  },
+  "benchmarks": {
+    "buy_and_hold_btc": {
+      "final_equity": 2782.3774250592073,
+      "return_pct": 0.3911887125296037
+    },
+    "buy_and_hold_eth": {
+      "final_equity": 7721.213074011437,
+      "return_pct": 2.8606065370057188
+    },
+    "equal_weight": {
+      "final_equity": 4097.525222407636,
+      "return_pct": 1.048762611203818
+    }
+  }
+}

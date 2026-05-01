@@ -209,6 +209,10 @@ def evaluate_config(args_tuple):
         long_size_usd_pct=cfg["long_size_usd_pct"],
         primary_symbol=cfg["primary_symbol"],
         hedge_symbol=cfg["hedge_symbol"],
+        enable_shorts=cfg.get("enable_shorts", False),
+        short_size_usd_pct=cfg.get("short_size_usd_pct"),
+        short_stop_loss_pct=cfg.get("short_stop_loss_pct", 0.10),
+        long_stop_loss_pct=cfg.get("long_stop_loss_pct"),
     )
 
     results = []

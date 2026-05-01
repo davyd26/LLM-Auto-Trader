@@ -69,6 +69,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--taker-fee-bps", type=float, default=4.0)
     parser.add_argument("--slippage-bps", type=float, default=5.0)
     parser.add_argument("--funding-rate-per-day", type=float, default=0.00010)
+    parser.add_argument("--enable-shorts", action="store_true")
+    parser.add_argument("--short-stop-loss-pct", type=float, default=0.10)
+    parser.add_argument("--long-stop-loss-pct", type=float, default=None)
+    parser.add_argument("--short-min-drawdown", type=float, default=0.0)
+    parser.add_argument("--confluence-lookback", type=int, default=None)
+    parser.add_argument("--rotation-symbols", default="",
+                        help="comma-separated symbols for momentum-rotation; if empty, uses primary only")
+    parser.add_argument("--vol-target-pct", type=float, default=None,
+                        help="weekly vol target (e.g. 0.04 = 4%/week); enables vol-targeting if set")
+    parser.add_argument("--vol-lookback", type=int, default=12)
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--runs-dir", default="runs")
     parser.add_argument("--periods-per-year", type=int, default=52)
@@ -119,6 +129,14 @@ def main(argv: list[str] | None = None) -> int:
         long_size_usd_pct=args.size_pct,
         primary_symbol=universe[0],
         hedge_symbol=universe[2] if len(universe) > 2 else universe[0],
+        enable_shorts=args.enable_shorts,
+        short_stop_loss_pct=args.short_stop_loss_pct,
+        long_stop_loss_pct=args.long_stop_loss_pct,
+        short_min_drawdown=args.short_min_drawdown,
+        confluence_lookback_bars=args.confluence_lookback,
+        rotation_symbols=tuple(s.strip() for s in args.rotation_symbols.split(",") if s.strip()),
+        vol_target_pct=args.vol_target_pct,
+        vol_lookback_bars=args.vol_lookback,
     )
 
     # Use the actual full bars (bars_by_symbol[universe[0]]) for the walk
