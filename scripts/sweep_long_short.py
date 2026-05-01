@@ -24,16 +24,15 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-from src.backtest.cpcv import generate_paths
-from src.backtest.data_cache import OHLCVCache
-
 from scripts.sweep_parallel import (
     SUMMARY_FIELDS,
-    append_csv_locked,
     already_done,
+    append_csv_locked,
     config_hash,
     evaluate_config,
 )
+from src.backtest.cpcv import generate_paths
+from src.backtest.data_cache import OHLCVCache
 
 
 def parse_iso(s: str) -> int:

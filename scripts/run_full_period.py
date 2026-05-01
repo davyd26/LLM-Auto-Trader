@@ -24,12 +24,12 @@ import csv
 import json
 import math
 import sys
-from dataclasses import replace
 from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
 
+from scripts.sweep_parallel import populate_path
 from src.analysis.backtest_stats import (
     calmar_ratio,
     max_drawdown,
@@ -47,7 +47,6 @@ from src.backtest.decision_cache import DecisionCache
 from src.backtest.fill_model import FillConfig
 from src.backtest.runner import run_path
 from src.backtest.snapshot_builder import SnapshotBuilder
-from scripts.sweep_parallel import populate_path
 
 
 def parse_iso(s: str) -> int:
@@ -196,7 +195,7 @@ def main(argv: list[str] | None = None) -> int:
     print(f"Skewness:         {moments['skew']:+.2f}")
     print(f"Kurtosis:         {moments['kurtosis']:.2f}")
 
-    print(f"\n=== Benchmarks (same window, same fees) ===")
+    print("\n=== Benchmarks (same window, same fees) ===")
     print(f"Buy-and-hold BTC: ${bh_btc.final_equity:,.2f}  "
           f"({(bh_btc.final_equity - bh_btc.initial_equity) / bh_btc.initial_equity:+.1%})")
     if bh_eth:

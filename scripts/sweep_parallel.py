@@ -24,14 +24,13 @@ import hashlib
 import itertools
 import json
 import multiprocessing as mp
-import os
 import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
 
 from src.backtest.baseline_strategy import BaselineConfig, decide_baseline
-from src.backtest.cpcv import CPCVPath, generate_paths
+from src.backtest.cpcv import generate_paths
 from src.backtest.data_cache import OHLCVCache
 from src.backtest.decision_cache import DecisionCache
 from src.backtest.fill_model import FillConfig, simulate_close, simulate_open

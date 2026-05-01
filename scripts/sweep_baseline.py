@@ -36,10 +36,8 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-import numpy as np
-
 from src.backtest.baseline_strategy import BaselineConfig, decide_baseline
-from src.backtest.cpcv import CPCVPath, compute_pbo, generate_paths
+from src.backtest.cpcv import CPCVPath, generate_paths
 from src.backtest.data_cache import OHLCVCache
 from src.backtest.decision_cache import DecisionCache
 from src.backtest.fill_model import (
@@ -48,13 +46,9 @@ from src.backtest.fill_model import (
     simulate_close,
     simulate_open,
 )
+from src.backtest.report import aggregate_results
 from src.backtest.runner import run_path
 from src.backtest.snapshot_builder import PositionRecord, SnapshotBuilder
-from src.backtest.report import aggregate_results
-from src.analysis.backtest_stats import (
-    max_drawdown,
-    sharpe_annualized,
-)
 
 
 def parse_iso(s: str) -> int:
@@ -388,7 +382,7 @@ def main(argv: list[str] | None = None) -> int:
     if not candidates:
         candidates = summaries
     best = max(candidates, key=lambda s: s["median_sharpe"])
-    print(f"\n=== BEST CONFIG (by median Sharpe with >=5 trades) ===")
+    print("\n=== BEST CONFIG (by median Sharpe with >=5 trades) ===")
     print(json.dumps(best["config"], indent=2))
     print(f"  median_sharpe: {best['median_sharpe']:.3f}")
     print(f"  p5_sharpe: {best['p5_sharpe']:.3f}")
