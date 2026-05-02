@@ -259,6 +259,39 @@ ETH is in the universe but **never traded** by the current baseline (it
 only trades the primary symbol). BTC-as-primary works better than
 ETH-as-primary because BTC's momentum is cleaner.
 
+### Daily cadence — REJECTED (verified across 1800 configs)
+
+To enable a thorough daily sweep, built `src/backtest/fast_baseline.py` —
+a numpy-only vectorized engine that skips the snapshot/decision-cache
+pipeline (necessary for the LLM strategy, pure overhead for the
+deterministic baseline). Verified within ~5% of the slow pipeline's
+final equity.
+
+The fast engine made 1800 daily configurations tractable — the sweep
+finished in **70 seconds** (vs ~4 hours projected for the slow pipeline,
+a **~200× speedup**).
+
+Best daily configs (within 15% DD ceiling, full-period contiguous):
+
+| Config | CAGR | Sharpe | DD |
+|---|---:|---:|---:|
+| Daily M=20 H=0.15 S=0.50 (no vt) | 13.4% | 0.67 | 17.0% |
+| Daily M=20 H=0.15 S=0.50 vt=0.04 | 18.7% | 0.68 | 20.7% |
+| Daily M=20 H=0.20 S=0.75 vt=0.03 | 23.5% | 0.64 | 22.4% |
+| Daily M=20 H=0.20 S=2.00 vt=0.015 | 31.8% | 0.66 | 29.1% |
+| **Weekly champion (vt=0.015 S=3.0)** | **44.0%** | **0.94** | **14.2%** |
+
+Daily underperforms weekly across the board:
+- Best daily Sharpe: **0.68** vs weekly's **0.94** (−28%)
+- Best daily CAGR within 15% DD: ~13% vs weekly's 44%
+- Daily configs generate 80–130 trades vs weekly's 22 → 4–6× more fee/slippage drag
+- Daily noise causes the momentum filter to whipsaw; the strategy's edge
+  (capturing big moves, defending in crashes) needs the lower-frequency
+  smoothing that weekly bars provide
+
+The fast engine remains valuable for sweep ranking; daily as a cadence
+is empirically worse than weekly for this deterministic strategy.
+
 ## Summary verdict
 
 | Goal | Achieved? | Evidence |
