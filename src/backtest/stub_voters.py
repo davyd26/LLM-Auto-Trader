@@ -137,6 +137,52 @@ def champion_tilted_voter_specs(
     ]
 
 
+def champion_plus_veto_voter_specs(
+    primary_symbol: str = "BTC/USDT:USDT",
+    hedge_symbol: str = "PAXG/USDT",
+) -> list[VoterSpec]:
+    """Champion's aggressive trend config (3 of 5 voters) + 2 risk-off voters
+    that vote ``hold`` and report ``regime=crisis`` when conditions warrant.
+
+    The veto aggregator + crisis_vetos_longs flag lets the risk-off voters
+    block longs in crisis tape while the champion-style voters drive the
+    decision in calm/elevated regimes. This is the architectural template
+    for the real LLM panel: N opinion voters + a risk-management veto.
+    """
+    base = dict(primary_symbol=primary_symbol, hedge_symbol=hedge_symbol)
+    champion_kwargs = dict(
+        drawdown_hedge_threshold=0.20,
+        long_size_usd_pct=3.0,
+        vol_target_pct=0.015,
+        vol_lookback_bars=12,
+        vol_size_max_mult=1.67,
+    )
+    return [
+        # 3 trend voters with champion sizing — these drive the decision in calm tape.
+        VoterSpec("trend_4w", BaselineConfig(
+            momentum_lookback_bars=4, **champion_kwargs, **base,
+        )),
+        VoterSpec("trend_8w", BaselineConfig(
+            momentum_lookback_bars=8, **champion_kwargs, **base,
+        )),
+        VoterSpec("trend_12w", BaselineConfig(
+            momentum_lookback_bars=12, **champion_kwargs, **base,
+        )),
+        # 2 risk-off voters: tight drawdown hedge + small size. They vote
+        # hold/PAXG most of the time and report crisis when drawdown is deep.
+        VoterSpec("risk_off_8w", BaselineConfig(
+            momentum_lookback_bars=8, drawdown_hedge_threshold=0.08,
+            long_size_usd_pct=0.5, vol_target_pct=0.012, vol_lookback_bars=12,
+            vol_size_max_mult=1.0, **base,
+        )),
+        VoterSpec("risk_off_12w", BaselineConfig(
+            momentum_lookback_bars=12, drawdown_hedge_threshold=0.10,
+            long_size_usd_pct=0.5, vol_target_pct=0.012, vol_lookback_bars=12,
+            vol_size_max_mult=1.0, **base,
+        )),
+    ]
+
+
 def collect_stub_votes(
     voter_specs: list[VoterSpec],
     symbol_bars: dict[str, list[dict]],

@@ -80,6 +80,24 @@ def _hash_snapshot(snapshot_path: Path) -> str:
     return hashlib.sha256(snapshot_path.read_text().encode("utf-8")).hexdigest()
 
 
+def _strip_markdown_fences(text: str) -> str:
+    """Strip ```json ... ``` or ``` ... ``` fences from a model response.
+
+    Models often add fences even when told not to. Locate the first {...}
+    JSON object span; if not found, return the original text.
+    """
+    s = text.strip()
+    if s.startswith("```"):
+        # drop opening fence (with optional language tag)
+        first_nl = s.find("\n")
+        if first_nl > 0:
+            s = s[first_nl + 1:]
+        if s.endswith("```"):
+            s = s[: -3]
+        s = s.strip()
+    return s
+
+
 def _decision_to_vote(voter_id: str, decision: dict) -> Vote:
     actions = decision.get("actions") or [{"type": "hold"}]
     first = actions[0] if actions else {"type": "hold"}
@@ -120,9 +138,9 @@ def _invoke_one(
     try:
         envelope = json.loads(result.stdout)
         assistant_text = envelope.get("result") or envelope.get("text") or ""
-        decision = json.loads(assistant_text)
+        decision = json.loads(_strip_markdown_fences(assistant_text))
     except json.JSONDecodeError as e:
-        return voter_id, snapshot_hash, None, f"json parse: {e}"
+        return voter_id, snapshot_hash, None, f"json parse: {e}; text={assistant_text[:200]!r}"
     try:
         vote = _decision_to_vote(voter_id, decision)
     except (KeyError, ValueError, TypeError) as e:

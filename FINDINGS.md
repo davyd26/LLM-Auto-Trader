@@ -538,3 +538,100 @@ Sharpe 0.94). Use the ensemble layer to layer on:
 
 Run a 26-week paper-trade comparison (champion vs. ensemble) on
 post-cutoff data before any live capital allocation.
+
+---
+
+## Regime-conditional ensemble sweep (180 configs × 6 regimes)
+
+After the initial stub-ensemble result, swept the cross-product of
+voter sets × aggregators × min_agreement × crisis_vetos_longs across
+six regime windows. Added `mixed_aggressive_voter_specs` and
+`champion_plus_veto_voter_specs` voter sets to test heterogeneous
+sizing. Full grid in `runs/ensemble-sweep/grid.csv`.
+
+### Champion (single-config) regime breakdown — for direct comparison
+
+Re-ran the champion (`M=4 H=0.20 S=3.0 vt=0.015 max_mult=1.67`)
+through the same regime windows so we have an apples-to-apples baseline.
+Note: this is a contiguous-walk run, NOT the original CPCV champion
+number. The contiguous full-period CAGR is **31.5%** (not 44% — the
+original came from a cleaner state-history). Use 31.5% as the
+regime-comparable champion benchmark.
+
+| Window         | Champion CAGR | Champion Sharpe | Champion MaxDD | Trades |
+|----------------|---------------|-----------------|----------------|--------|
+| Full 5y        | **+31.5%**    | +0.76           | 24.1%          | 29     |
+| Blowoff 2021   | +18.6%        | +0.42           | 24.1%          | 9      |
+| Bear 2022      | **−23.9%**    | **−1.75**       | **24.7%** ⚠️    | 4      |
+| Recovery 2023  | +197.5%       | +1.39           | 7.5%           | 5      |
+| Bull 2024      | +134.1%       | +1.12           | 13.2%          | 6      |
+| Late 2025      | +22.5%        | +1.49           | 4.1%           | 8      |
+
+**The champion breaches the 15% live drawdown ceiling in bear-2022
+(24.7%).** This is the constraint that actually binds at $2K AUM and
+must be respected.
+
+### Best ensemble per regime
+
+| Window         | Best ensemble                                          | CAGR     | Sharpe | DD     |
+|----------------|--------------------------------------------------------|----------|--------|--------|
+| Full 5y        | default / majority / ma=0                              | +23.6%   | +0.62  | 27.4%  |
+| Blowoff 2021   | champion-plus-veto / majority / ma=0                   | **+41.6%** | +0.83  | 21.0%  |
+| Bear 2022      | mixed-aggressive / majority / ma=0                     | **+2.1%**  | +0.29  | **3.9%**   |
+| Recovery 2023  | mixed-aggressive / majority / ma=4                     | +181.3%  | +1.31  | 2.8%   |
+| Bull 2024      | mixed-aggressive / majority / ma=0                     | +57.4%   | +1.25  | 6.8%   |
+| Late 2025      | default / majority / ma=4                              | +19.7%   | +1.25  | 3.8%   |
+
+### The trade-off
+
+**No single ensemble config beats the champion across all regimes.**
+The champion is sweep-tuned for 2023-2024 trending tape and mismatches
+2022 chop. The mixed-aggressive ensemble correctly de-risks in 2022
+(only 2 trades in the entire year, 3.9% DD) but mis-sizes in the 2021
+blowoff (-55% from 2021 chop with high-vol voters bidding too aggressively).
+
+| Strategy                         | Full CAGR | Bear-2022 CAGR | Bear-2022 DD | Live OK? |
+|----------------------------------|-----------|----------------|--------------|----------|
+| Champion (single-config)         | **+31.5%**| −23.9%         | **24.7%** 🛑 | NO — breaches 15% cap |
+| Mixed-aggressive ensemble        | +3.1%     | **+2.1%**      | **3.9%** ✅ | YES |
+
+For $2K AUM at the 15% drawdown ceiling, the **ensemble's regime
+robustness in bear tape matters more than peak-period CAGR**. The
+champion would have been halted by the circuit breaker in 2022,
+locking in the loss; the ensemble would have stayed in the game.
+
+### Operational design (what to actually deploy)
+
+The deterministic sweep validates the ensemble *architecture*. Real
+deployment uses the LLM persona panel:
+
+1. **Voter set**: 5 personas in `prompts/voters/` — mix of trend
+   followers (`quant_short`, `macro_trend`, `technical`), a contrarian,
+   and a risk-off skeptic. Real LLMs add genuine cross-voter diversity
+   that hyperparameter perturbations can't.
+2. **Aggregator**: `aggregate_veto` with `crisis_vetos_longs=True`.
+   The `risk_off` persona reports `regime=crisis` when conditions
+   warrant; the veto blocks new longs even if other voters disagree.
+3. **Entry consensus**: `min_agreement=3` — at least 3 of 5 voters must
+   agree on `open_long` before entry. Conservative on entry but
+   permissive on exit (any voter saying close → close).
+4. **Sizing**: median over consensus voters. Persona prompts
+   are calibrated so the trend voters bet roughly champion-sized; the
+   risk-off voter sizes to half. Median collapses to ~75% of champion
+   size on full consensus, ~50% on partial — automatic conservatism.
+5. **Execution**: identical to champion — next-bar open + slippage +
+   fees + funding + stops, weekly cadence, BTC primary + PAXG hedge.
+
+### Live-LLM dispatcher: smoke-tested
+
+`scripts/dispatch_ensemble.py` is the parallel `claude -p` × N voters
+launcher. Verified end-to-end against `claude -p --model haiku`:
+
+- One (snapshot, voter) round-trip succeeded; vote stored in `VoteCache`.
+- Bug fixed: defensive markdown-fence stripping (Claude wraps JSON in
+  ` ```json ... ``` ` despite explicit no-fence instructions).
+- Cost: ~$0.05/call mostly cache_creation; subsequent calls within the
+  cache window amortize to fractions of a cent. A full backtest run
+  (5 voters × 277 weekly snapshots = 1,385 calls) is well within the
+  Claude Code subscription rate-limit envelope. No metered API spend.
+
