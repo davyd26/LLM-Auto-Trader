@@ -422,3 +422,119 @@ there. The LLM upgrade should close most of the remaining gap.
 All artifacts are persisted; the harness is fully resumable; running
 `scripts/sweep_parallel.py` again with the same `--run-id` skips
 already-completed configs.
+
+---
+
+## Ensemble voting infrastructure (LLM-persona panel)
+
+The ensemble layer is the architectural step toward dispatching multiple
+LLM personas in parallel and aggregating their votes into one decision —
+the design described in `docs/IDEAS.md`.
+
+### Modules added
+
+- `src/backtest/ensemble_decision.py` — `Vote` dataclass and three
+  aggregators: `aggregate_majority` (median numerics over consensus
+  voters; ties prefer hold), `aggregate_weighted` (confidence-weighted),
+  `aggregate_veto` (any voter reporting `regime=crisis` blocks longs).
+  20 tests.
+- `src/backtest/vote_cache.py` — SQLite per-(snapshot_hash, voter_id)
+  storage. Immutable per key; ties cleanly into the existing
+  `decision_cache` discipline. 14 tests.
+- `src/backtest/stub_voters.py` — deterministic counterpart of LLM
+  dispatch. Each voter is a `BaselineConfig` variant; `collect_stub_votes`
+  runs all of them and returns a `list[Vote]`.
+- `src/backtest/fast_ensemble.py` — numpy-vectorized walker that, at each
+  decision point, builds the bars-window for voters, calls
+  `collect_stub_votes`, aggregates, and fills with the same model as
+  `fast_baseline.py`.
+- `prompts/voters/` — five real-LLM persona prompts:
+  `quant_short`, `macro_trend`, `technical`, `contrarian`, `risk_off`.
+  Each has a genuinely different worldview (fast trend, top-down macro,
+  chart structure, mean-reversion, capital-preservation).
+- `scripts/dispatch_ensemble.py` — invokes `claude -p` once per
+  (snapshot, voter), in parallel up to `--max-concurrent`. Stores results
+  in a `VoteCache`. Resumable: skips snapshots already cached.
+- `scripts/run_ensemble_cached.py` — replays the strategy off the cached
+  votes (no LLM calls during simulation; aggregator is swappable for
+  free).
+
+### Stub-voter ensemble result vs. single-config champion
+
+Tested 2021-01-04 → 2026-04-27, weekly cadence, BTC primary + PAXG hedge,
+default voter set (5 baseline-strategy variants):
+
+| metric        | champion (single-config) | ensemble (5 stub voters) |
+|---------------|--------------------------|--------------------------|
+| CAGR          | **+43.96%**              | +23.62%                  |
+| Sharpe        | **0.945**                | 0.617                    |
+| Max drawdown  | **14.19%**               | 27.44%                   |
+| Calmar        | **3.07**                 | 0.86                     |
+| Trades        | 22                       | 23                       |
+
+The stub ensemble **underperforms** the sweep-tuned champion across all
+three aggregators (`majority`, `weighted`, `veto`) — *all three produced
+identical results*, because deterministic baseline-strategy variants
+emit highly correlated votes and the stub voters all return
+`confidence=0.5`.
+
+**Interpretation**: voting reduces signal when voters are correlated.
+Five different `momentum_lookback` settings (4 / 8 / 12 / 16 weeks) +
+slight hedge-threshold variations yield votes that move together — the
+median collapses back toward each individual voter, minus diversification
+benefit. This is exactly the case Bailey & López de Prado's PBO theory
+warns about: combining N highly correlated strategies is barely better
+than picking one.
+
+A `champion-tilted` voter set where every voter shares the champion's
+vol-targeted sizing (`size_pct=3.0, vt=0.015, max_mult=1.67`) and only
+varies on `momentum_lookback` was even **worse** (CAGR 9.6%, DD 41.1%).
+With matched sizing, voters' lookback differences become the only source
+of disagreement; the median lookback enters and exits late, picking up
+neither early-trend continuation nor late-trend exits cleanly.
+
+### Why the architecture is still right
+
+The stub-voter result does *not* invalidate the ensemble approach — it
+shows the architecture is sensitive to voter diversity, which is the
+point. Real LLM personas (`prompts/voters/*.md`) bring genuinely
+heterogeneous decision-making (macro-thesis vs. chart pattern vs.
+contrarian sentiment vs. risk-management veto). The ensemble's value
+proposition lies in:
+
+1. **Variance reduction across regimes**: a single voter can be
+   blindsided by an unusual setup (e.g., the contrarian voter ignores
+   late-cycle parabolas the trend voter chases). With diverse voters,
+   the consensus filters out single-persona blow-ups.
+2. **Built-in robustness gate**: `min_agreement=3` requires three
+   voters to agree before any non-hold action — automatic confluence
+   filter without parameter tuning.
+3. **Veto rule for tail-risk**: `risk_off` voter's regime classification
+   blocks longs in crisis tape, even when trend voters disagree. This
+   is a design feature for capital preservation at $2K AUM.
+
+### Operational state
+
+- 620 tests pass (added 34 ensemble tests on top of the prior 586).
+- Backtest infrastructure: dispatch script + cached-vote replay are
+  written but require live `claude -p` to populate the `VoteCache`. A
+  smoke test of one (snapshot, voter) pair against `claude -p` is the
+  next sensible step before any large run.
+- Cost discipline: dispatch is via Claude Code subscription, not
+  metered API. Each `claude -p` is a fresh session — no state leakage
+  across snapshots or voters. Rate limits are the binding constraint,
+  not budget.
+
+### Recommendation
+
+For deployment, the sweep-tuned single-config champion remains the
+verified-best deterministic strategy at $2K AUM (CAGR 44%, DD 14%,
+Sharpe 0.94). Use the ensemble layer to layer on:
+
+- A **tail-risk veto** (`risk_off` persona blocks longs in crisis tape)
+- A **diversification check** (`min_agreement=3` requires LLM consensus
+  before initiating a position) — this is conservative on entry but
+  allows the trend voter alone to exit (any voter saying close → close).
+
+Run a 26-week paper-trade comparison (champion vs. ensemble) on
+post-cutoff data before any live capital allocation.

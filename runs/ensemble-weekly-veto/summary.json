@@ -1,0 +1,49 @@
+{
+  "run_id": "ensemble-weekly-veto",
+  "voters": [
+    "quant_short",
+    "quant_long",
+    "macro_trend",
+    "technical",
+    "contrarian"
+  ],
+  "aggregator": "veto",
+  "min_agreement": 0,
+  "crisis_vetos_longs": true,
+  "period": {
+    "start": "2021-01-04",
+    "end": "2026-04-27",
+    "timeframe": "1w"
+  },
+  "fill": {
+    "taker_fee_bps": 4.0,
+    "slippage_bps": 5.0,
+    "funding_rate_per_day": 0.0001
+  },
+  "results": {
+    "initial_equity": 2000.0,
+    "final_equity": 6238.050804737826,
+    "total_return_pct": 2.119025402368913,
+    "cagr": 0.23616148837760154,
+    "sharpe": 0.6174385771456323,
+    "sortino": 0.5587191000479169,
+    "max_drawdown": 0.27441846922464175,
+    "calmar": 0.8640255951084979,
+    "psr": 0.9871277487240401,
+    "skew": 6.952679447042701,
+    "kurtosis": 70.5914588397259,
+    "bootstrap_ci_lo_95": -0.29605720692150983,
+    "bootstrap_ci_hi_95": 1.0980730861198273,
+    "n_trades": 23,
+    "n_decisions_total": 277,
+    "n_decisions_with_consensus": 37
+  },
+  "champion_reference": {
+    "config": "M=4 H=0.20 S=3.0 vt=0.015 max_mult=1.67 (single-config)",
+    "cagr": 0.4395,
+    "sharpe": 0.9448,
+    "max_drawdown": 0.1419,
+    "calmar": 3.071,
+    "n_trades": 22
+  }
+}
