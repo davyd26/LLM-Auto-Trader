@@ -25,6 +25,7 @@ import pandas as pd
 from src.backtest.baseline_strategy import BaselineConfig
 from src.backtest.fill_model import FillConfig
 from src.backtest.funding import compute_funding_cost
+from src.backtest.regime_tagger import classify_regime_series
 
 
 @dataclass
@@ -94,6 +95,10 @@ def run_baseline_fast(
     start_idx: int = 0,
     end_idx: int | None = None,
     snapshot_lookback_bars: int = 30,
+    regime_overrides: dict[str, dict] | None = None,
+    regime_sma_window: int = 28,
+    regime_vol_short: int = 4,
+    regime_vol_long: int = 28,
 ) -> FastResult:
     """Vectorized backtest for the deterministic baseline.
 
@@ -131,10 +136,20 @@ def run_baseline_fast(
 
     # Pre-compute strategy signals once for the whole timeline.
     drawdown = _windowed_drawdown(closes, snapshot_lookback_bars)
-    if config.vol_target_pct is not None:
+    if config.vol_target_pct is not None or regime_overrides is not None:
         rvol = _rolling_realized_vol(closes, config.vol_lookback_bars)
     else:
         rvol = None
+
+    if regime_overrides is not None:
+        regime_labels = classify_regime_series(
+            closes,
+            sma_window=regime_sma_window,
+            vol_short=regime_vol_short,
+            vol_long=regime_vol_long,
+        )
+    else:
+        regime_labels = None
 
     # Simulation state
     equity = initial_equity
@@ -158,6 +173,15 @@ def run_baseline_fast(
         if config.short_size_usd_pct is not None
         else config.long_size_usd_pct
     )
+
+    # Per-bar effective sizing: when regime_overrides is set, these are
+    # rewritten before each call to _open_pos. Default to config values.
+    effective = {
+        "long_pct": config.long_size_usd_pct,
+        "short_pct": short_pct,
+        "vol_target_pct": config.vol_target_pct,
+        "disable_hedge": False,
+    }
 
     primary_sym = config.primary_symbol
     hedge_sym = config.hedge_symbol
@@ -202,13 +226,15 @@ def run_baseline_fast(
         else:
             entry = raw_price * (1 - slip)
 
-        # Sizing (with vol-targeting if configured)
-        long_pct = config.long_size_usd_pct
-        local_short_pct = short_pct
+        # Sizing (with vol-targeting if configured). Reads from `effective`,
+        # which is updated per-bar when regime_overrides is set.
+        long_pct = effective["long_pct"]
+        local_short_pct = effective["short_pct"]
+        active_vt = effective["vol_target_pct"]
         if rvol is not None and idx > 0 and not math.isnan(rvol[idx - 1]):
             sigma = rvol[idx - 1]
-            if sigma > 0 and config.vol_target_pct is not None:
-                mult = config.vol_target_pct / sigma
+            if sigma > 0 and active_vt is not None:
+                mult = active_vt / sigma
                 mult = max(config.vol_size_min_mult, min(config.vol_size_max_mult, mult))
                 long_pct *= mult
                 local_short_pct *= mult
@@ -238,6 +264,22 @@ def run_baseline_fast(
 
     # Walk the timeline. Decisions made at index i act on bar i+1 (next-bar open).
     for i in range(start_idx, end_idx):
+        # Apply per-bar regime overrides BEFORE any sizing decision.
+        # When the regime label has an entry in regime_overrides, swap in
+        # the override values; otherwise revert to config defaults.
+        if regime_overrides is not None and regime_labels is not None:
+            label = regime_labels[i]
+            ov = regime_overrides.get(label, {})
+            effective["long_pct"] = ov.get("long_size_usd_pct", config.long_size_usd_pct)
+            effective["vol_target_pct"] = ov.get("vol_target_pct", config.vol_target_pct)
+            effective["short_pct"] = ov.get(
+                "short_size_usd_pct",
+                config.short_size_usd_pct
+                if config.short_size_usd_pct is not None
+                else effective["long_pct"],
+            )
+            effective["disable_hedge"] = bool(ov.get("disable_hedge", False))
+
         # Settle stops on bar i+1 against the OPEN position
         if pos_symbol is not None and pos_stop is not None and i + 1 <= end_idx:
             if pos_symbol == primary_sym:
@@ -272,9 +314,10 @@ def run_baseline_fast(
             mom_up = mom_up and long_conf
             mom_down = mom_down and short_conf
 
-        # Drawdown signal
+        # Drawdown signal — gated by regime override that can disable hedging
+        # entirely (forces "all cash" in crisis instead of rotating to PAXG).
         dd = drawdown[i]
-        needs_hedge = dd >= config.drawdown_hedge_threshold
+        needs_hedge = dd >= config.drawdown_hedge_threshold and not effective["disable_hedge"]
 
         # Resolve actions on next bar i+1
         next_idx = i + 1
@@ -289,6 +332,26 @@ def run_baseline_fast(
         has_primary_long = (pos_symbol == primary_sym and pos_side == "long")
         has_primary_short = (pos_symbol == primary_sym and pos_side == "short")
         has_hedge_long = (hedge_opens is not None and pos_symbol == hedge_sym and pos_side == "long")
+
+        # Force flat when the active regime override sizes to zero AND
+        # disables the hedge — i.e., the strategy is told "all cash, no
+        # exposure". This catches the case where mom_up would otherwise
+        # try to enter a (now-zero) long while leaving prior positions open.
+        force_flat = (
+            regime_overrides is not None
+            and effective["long_pct"] <= 0.0
+            and effective["disable_hedge"]
+        )
+        if force_flat:
+            if pos_symbol is not None:
+                if pos_symbol == primary_sym:
+                    _close_pos(opens[next_idx] * (1 - slip if pos_side == "long" else 1 + slip),
+                               next_idx, "regime_flat")
+                elif hedge_opens is not None:
+                    _close_pos(hedge_opens[next_idx] * (1 - slip if pos_side == "long" else 1 + slip),
+                               next_idx, "regime_flat")
+            equity_curve.append((int(ts_ms[i]), equity))
+            continue
 
         if needs_hedge:
             if has_primary_long or has_primary_short:

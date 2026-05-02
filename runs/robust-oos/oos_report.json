@@ -1,0 +1,80 @@
+{
+  "oos_window": {
+    "start": "2025-10-06",
+    "end": "2026-04-27"
+  },
+  "n_oos_bars": 30,
+  "tested_configs": [
+    "H4_vt_0.020",
+    "H4_baseline",
+    "H4_hedge_0.15"
+  ],
+  "results": {
+    "H4_vt_0.020": {
+      "oos": {
+        "final_equity": 2544.0533861963177,
+        "cagr": 0.49721438203094714,
+        "sharpe": 0.8245523975136055,
+        "sortino": 0.8425211426523751,
+        "max_drawdown": 0.11254234310713822,
+        "calmar": 4.598209992977035,
+        "n_returns": 30
+      },
+      "train_cagr": 0.39643389325657963,
+      "train_dd": 0.2448983026467212,
+      "cpcv_median_sharpe": 0.7829867638939867,
+      "sh_threshold": 0.39149338194699335,
+      "passed": true,
+      "passed_sharpe": true,
+      "passed_dd": true,
+      "passed_cagr": true,
+      "n_trades": 2
+    },
+    "H4_baseline": {
+      "oos": {
+        "final_equity": 2624.708988987164,
+        "cagr": 0.5776886659086791,
+        "sharpe": 0.9550925041409671,
+        "sortino": 1.2887217900925059,
+        "max_drawdown": 0.08440675733035358,
+        "calmar": 7.130360729337362,
+        "n_returns": 30
+      },
+      "train_cagr": 0.3356246963422165,
+      "train_dd": 0.24113456251857243,
+      "cpcv_median_sharpe": 0.765287830300145,
+      "sh_threshold": 0.3826439151500725,
+      "passed": true,
+      "passed_sharpe": true,
+      "passed_dd": true,
+      "passed_cagr": true,
+      "n_trades": 2
+    },
+    "H4_hedge_0.15": {
+      "oos": {
+        "final_equity": 2742.441812354156,
+        "cagr": 0.6981914506996272,
+        "sharpe": 1.3113920805538954,
+        "sortino": 63.19971655250316,
+        "max_drawdown": 0.0012000000000000454,
+        "calmar": 607.0285691587942,
+        "n_returns": 30
+      },
+      "train_cagr": 0.3434345751183221,
+      "train_dd": 0.2284107441008784,
+      "cpcv_median_sharpe": 0.8064648938116196,
+      "sh_threshold": 0.4032324469058098,
+      "passed": true,
+      "passed_sharpe": true,
+      "passed_dd": true,
+      "passed_cagr": true,
+      "n_trades": 1
+    }
+  },
+  "passing_configs": [
+    "H4_vt_0.020",
+    "H4_baseline",
+    "H4_hedge_0.15"
+  ],
+  "deployment_candidate": "H4_vt_0.020"
+}
