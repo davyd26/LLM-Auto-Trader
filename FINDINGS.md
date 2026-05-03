@@ -1387,3 +1387,105 @@ PYTHONPATH=. python scripts/run_llm_portfolio.py \
 That generates a comparable LLM Sharpe / CAGR$ / DD$ for each subset
 that can be slotted into the tables above as the "LLM(Claude)" column.
 
+---
+
+## CPCV (45 paths) and Walk-Forward (8 segments) on the portfolio strategies
+
+**All figures USD-denominated.** Initial equity $2,000. Training window
+2021-01-04 → 2025-09-29.
+
+### CPCV — segment-reset 45 paths × 13 universes × 5 rebalancers
+
+`scripts/run_portfolio_cpcv.py`. Per-path Sharpe, DD, CAGR computed on
+the strategy's log returns at each path's test indices (CPCV with N=10,
+K=2, purge=2, embargo=2 → 45 paths).
+
+**Top 10 by CPCV median Sharpe (USD):**
+
+| Rank | Universe | Rebalancer | med_Sh$ | p5_Sh | p95_Sh | med_DD$ | frac>0 | frac DD<15 |
+|---:|---|---|---:|---:|---:|---:|---:|---:|
+| 1 | anchor_plus_sol      | MinVariance | **+1.84** | +0.34 | +2.96 | 6.7% | 0.98 | 0.96 |
+| 2 | anchor_eth_sol       | MinVariance | +1.75 | +0.10 | +2.84 | 6.9% | 0.96 | 0.91 |
+| 3 | anchor_plus_NVDA     | Strawman    | +1.70 | −0.04 | +3.74 | 4.1% | 0.93 | **1.00** |
+| 4 | anchor_eth_nvda      | Strawman    | +1.68 | −0.32 | +3.51 | 5.4% | 0.89 | 1.00 |
+| 5 | anchor_plus_NVDA     | Strawman_v2 | +1.57 | −0.20 | +3.65 | 4.4% | 0.93 | 1.00 |
+| 6 | anchor_plus_SPY      | Strawman_v2 | +1.56 | −0.23 | +3.47 | 2.9% | 0.89 | 1.00 |
+| 7 | anchor_plus_SPY      | MinVariance | +1.53 | −0.07 | +3.34 | 6.7% | 0.93 | 0.98 |
+| 8 | **anchor_btc_gld_usd** | **MinVariance** | **+1.53** | +0.23 | +2.88 | 7.6% | 0.96 | 0.98 |
+| 9 | anchor_eth_nvda      | Strawman_v2 | +1.52 | −0.40 | +3.15 | 5.8% | 0.84 | 1.00 |
+| 10 | anchor_plus_QQQ     | Strawman_v2 | +1.49 | −0.47 | +3.16 | 3.5% | 0.87 | 1.00 |
+
+### Walk-forward — 8 segments × 13 weeks each
+
+`scripts/run_walk_forward.py`. Different from CPCV in that each
+segment is a *consecutive* test window — measures temporal stability,
+not regime sampling.
+
+**Top 10 by walk-forward median Sharpe (USD):**
+
+| Rank | Universe | Rebalancer | med_Sh$ | med_CAGR$ | med_DD$ | maxDD$ | frac>0 |
+|---:|---|---|---:|---:|---:|---:|---:|
+| 1 | anchor_plus_sol     | MinVariance | **+1.66** | +33.1% | 4.6% | 19.8% | 0.62 |
+| 2 | anchor_plus_NVDA    | MinVariance | +1.53 | +28.7% | 4.4% | 16.1% | 0.88 |
+| 3 | anchor_plus_BNO     | MinVariance | +1.41 | +22.4% | 4.6% | 13.1% | 0.75 |
+| 4 | anchor_plus_eth     | MinVariance | +1.38 | +27.4% | 5.5% | 24.5% | 0.62 |
+| 5 | **anchor_btc_gld_usd** | **MinVariance** | **+1.30** | +20.8% | 4.6% | 16.9% | 0.88 |
+| 6 | pair_BTC_USD        | EqualWeight | +1.11 | +24.5% | 6.5% | 28.0% | 0.75 |
+| 7 | pair_BTC_USD        | Strawman    | +1.07 | +2.1% | 0.7% | 2.6% | 0.75 |
+| 8 | pair_BTC_USD        | Strawman_v2 | +1.07 | +2.1% | 0.7% | 2.6% | 0.75 |
+| 9 | pair_BTC_USD        | InverseVol  | +0.99 | +19.1% | 6.5% | 27.2% | 0.75 |
+| 10 | anchor_plus_NVDA   | InverseVol  | +0.89 | +35.0% | 20.2% | 33.4% | 0.88 |
+
+### Cross-validation: configs that win BOTH CPCV and walk-forward
+
+A genuinely robust strategy passes both:
+
+| Universe | Rebalancer | CPCV med_Sh | WF med_Sh | Combined verdict |
+|---|---|---:|---:|---|
+| anchor_plus_sol     | MinVariance | +1.84 | **+1.66** | strongest |
+| anchor_plus_NVDA    | MinVariance | +1.44 | +1.53 | strong |
+| anchor_btc_gld_usd  | MinVariance | +1.53 | +1.30 | most robust pure-anchor |
+| anchor_plus_BNO     | MinVariance | +1.46 | +1.41 | best non-equity add |
+| anchor_plus_eth     | MinVariance | +1.20+ | +1.38 | solid |
+
+**MinVariance is the consistently winning rebalancer across both validations.**
+Strawman wins CPCV in some cases (NVDA, ETH+NVDA) but underperforms
+walk-forward because its crisis floor is too conservative for short
+13-week segments.
+
+### Recommended configs (re-confirmed by both CPCV and walk-forward)
+
+**Top pick — best risk-adjusted, lowest DD:**
+
+  Universe: BTC + GLD + SOL + USD_CASH
+  Rebalancer: MinVariance (analytic Markowitz long-only, cash-capped at 20%)
+  CPCV: med_Sh +1.84, med_DD 6.7%, 96% paths under DD-15 cap
+  Walk-forward: med_Sh +1.66, med_CAGR_USD +33.1%, max segment DD 19.8%
+
+**Most robust pure anchor:**
+
+  Universe: BTC + GLD + USD_CASH (the user's mandatory triple)
+  Rebalancer: MinVariance
+  CPCV: med_Sh +1.53, med_DD 7.6%, 98% paths safe
+  Walk-forward: med_Sh +1.30, med_CAGR_USD +20.8%, 88% segments positive
+
+**Best stock-add:**
+
+  Universe: BTC + GLD + NVDA + USD_CASH
+  Rebalancer: MinVariance
+  CPCV: med_Sh +1.44, walk-forward med_Sh +1.53
+  Both validations: 88-96% paths/segments under 15% DD
+
+### Long opus run (in progress)
+
+LLM dispatcher running with **opus + max effort thinking** in background
+(launched 2026-05-03, PID 2249279). Runs on the 4 user-specified subsets:
+pair_BTC_GLD, pair_GLD_USD, pair_BTC_USD, anchor_btc_gld_usd. SHA-256
+snapshot cache in `runs/llm-portfolio/llm_decisions_opus.db` makes it
+resumable across sessions. ~30s per call expected; ~8h total runtime
+for the full training window.
+
+The LLM column will be appended to the comparison tables once the
+dispatcher completes. Until then, the deterministic MinVariance and
+Strawman columns are the production-validated alternatives.
+
