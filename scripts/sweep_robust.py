@@ -50,6 +50,7 @@ from src.backtest.cpcv import compute_pbo, generate_paths, summarize_paths
 from src.backtest.data_cache import OHLCVCache
 from src.backtest.fast_baseline import run_baseline_fast
 from src.backtest.fill_model import FillConfig
+from src.backtest.quant_overlay import QuantOverlayConfig
 
 PRIMARY = "BTC/USDT:USDT"
 HEDGE = "PAXG/USDT"
@@ -80,6 +81,7 @@ class NamedConfig:
     hypothesis: str
     config: BaselineConfig
     regime_overrides: dict[str, dict] | None = None
+    quant_overlay: QuantOverlayConfig | None = None
 
 
 def _champion_kwargs() -> dict:
@@ -207,6 +209,87 @@ def all_configs() -> list[NamedConfig]:
     out.append(NamedConfig("H2_H3_hybrid", "H2_H3",
                            h2h3_base, {"crisis": {"long_size_usd_pct": 0.0}}))
 
+    # ---- H5: champion + GARCH vol-targeting overlay ----
+    out.append(NamedConfig(
+        "H5_garch", "H5_garch",
+        BaselineConfig(**_champion_kwargs()),
+        regime_overrides=None,
+        quant_overlay=QuantOverlayConfig(use_garch_vol=True),
+    ))
+    # H5 + emergency dd halt (15%)
+    out.append(NamedConfig(
+        "H5_garch_dd_halt", "H5_garch",
+        BaselineConfig(**_champion_kwargs()),
+        regime_overrides=None,
+        quant_overlay=QuantOverlayConfig(
+            use_garch_vol=True, emergency_dd_halt=0.15,
+        ),
+    ))
+    # H5 + emergency dd halt + GARCH z spike halt
+    out.append(NamedConfig(
+        "H5_garch_full_emergency", "H5_garch",
+        BaselineConfig(**_champion_kwargs()),
+        regime_overrides=None,
+        quant_overlay=QuantOverlayConfig(
+            use_garch_vol=True,
+            emergency_dd_halt=0.13, emergency_garch_z=2.5,
+        ),
+    ))
+
+    # ---- H6: champion + adaptive Kelly sizing ----
+    out.append(NamedConfig(
+        "H6_kelly", "H6_kelly",
+        BaselineConfig(**_champion_kwargs()),
+        regime_overrides=None,
+        quant_overlay=QuantOverlayConfig(kelly_adaptive=True),
+    ))
+
+    # ---- H7: GARCH + Kelly + emergency (full quant overlay stack) ----
+    out.append(NamedConfig(
+        "H7_full_quant", "H7_full_quant",
+        BaselineConfig(**_champion_kwargs()),
+        regime_overrides=None,
+        quant_overlay=QuantOverlayConfig(
+            use_garch_vol=True, kelly_adaptive=True,
+            emergency_dd_halt=0.13, emergency_garch_z=2.5,
+        ),
+    ))
+    # H7 + regime adaptive (the maximum-stack config)
+    out.append(NamedConfig(
+        "H7_full_quant_regime", "H7_full_quant",
+        BaselineConfig(**_champion_kwargs()),
+        regime_overrides=h1_overrides_d,
+        quant_overlay=QuantOverlayConfig(
+            use_garch_vol=True, kelly_adaptive=True,
+            emergency_dd_halt=0.13, emergency_garch_z=2.5,
+        ),
+    ))
+
+    # ---- H8: PERP — long+short with GARCH vol-targeting + emergency halt ----
+    h8_kwargs = {**_champion_kwargs(), "enable_shorts": True,
+                 "short_min_drawdown": 0.20, "short_size_usd_pct": 1.5,
+                 "short_stop_loss_pct": 0.10, "momentum_lookback_bars": 8}
+    out.append(NamedConfig(
+        "H8_perp_garch", "H8_perp",
+        BaselineConfig(**h8_kwargs),
+        regime_overrides=None,
+        quant_overlay=QuantOverlayConfig(
+            use_garch_vol=True, emergency_dd_halt=0.13, emergency_garch_z=2.5,
+        ),
+    ))
+    h8b_kwargs = {**_champion_kwargs(), "enable_shorts": True,
+                  "short_min_drawdown": 0.25, "short_size_usd_pct": 1.0,
+                  "short_stop_loss_pct": 0.10, "momentum_lookback_bars": 12}
+    out.append(NamedConfig(
+        "H8_perp_garch_kelly", "H8_perp",
+        BaselineConfig(**h8b_kwargs),
+        regime_overrides=None,
+        quant_overlay=QuantOverlayConfig(
+            use_garch_vol=True, kelly_adaptive=True,
+            emergency_dd_halt=0.13, emergency_garch_z=2.5,
+        ),
+    ))
+
     return out
 
 
@@ -238,6 +321,7 @@ def _run_one(
         config=cfg.config, fill_config=fill_cfg,
         initial_equity=initial_eq,
         regime_overrides=cfg.regime_overrides,
+        quant_overlay=cfg.quant_overlay,
     )
     stats = _stats_from_curve(initial_eq, res.equity_curve)
     stats["n_trades"] = len(res.trades)
@@ -442,8 +526,9 @@ def main(argv: list[str] | None = None) -> int:
 
     print("\n" + "=" * 80)
     print("RANKING by composite score (CAGR × min_window_Sharpe × DD_headroom)")
+    print("All CAGR / DD figures are USD-denominated.")
     print("=" * 80)
-    print(f"{'rank':4s} {'config':30s} {'composite':>10s} {'CAGR':>8s} {'minWinSh':>9s} "
+    print(f"{'rank':4s} {'config':30s} {'composite':>10s} {'CAGR$':>8s} {'minWinSh':>9s} "
           f"{'DD':>7s} {'DSR':>7s}")
     for rank, (name, comp) in enumerate(ranking[:15], start=1):
         train_row = next(r for r in rows if r["config"] == name and r["window"] == "train-full")

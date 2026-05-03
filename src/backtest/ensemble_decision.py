@@ -24,7 +24,6 @@ import math
 from collections import Counter
 from dataclasses import dataclass
 from statistics import median
-from typing import Optional
 
 
 @dataclass(frozen=True)
@@ -102,7 +101,7 @@ def _build_decision_from(consensus_voters: list[Vote], action_type: str) -> dict
 
 
 def aggregate_majority(
-    votes: list[Vote], config: Optional[AggregateConfig] = None,
+    votes: list[Vote], config: AggregateConfig | None = None,
 ) -> dict:
     """Plain majority vote with median numeric aggregation.
 
@@ -132,7 +131,7 @@ def aggregate_majority(
 
 
 def aggregate_weighted(
-    votes: list[Vote], config: Optional[AggregateConfig] = None,
+    votes: list[Vote], config: AggregateConfig | None = None,
 ) -> dict:
     """Confidence-weighted aggregation. Each vote contributes its confidence
     score to its action type's total; highest-weight action wins."""
@@ -160,7 +159,7 @@ def aggregate_weighted(
 
 
 def aggregate_veto(
-    votes: list[Vote], config: Optional[AggregateConfig] = None,
+    votes: list[Vote], config: AggregateConfig | None = None,
 ) -> dict:
     """Majority vote with veto rules layered on top.
 

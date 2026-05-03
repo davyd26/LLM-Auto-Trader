@@ -25,6 +25,12 @@ import pandas as pd
 from src.backtest.baseline_strategy import BaselineConfig
 from src.backtest.fill_model import FillConfig
 from src.backtest.funding import compute_funding_cost
+from src.backtest.quant_overlay import (
+    QuantOverlayConfig,
+    compute_quant_signals,
+    emergency_check,
+    update_kelly_state,
+)
 from src.backtest.regime_tagger import classify_regime_series
 
 
@@ -99,6 +105,7 @@ def run_baseline_fast(
     regime_sma_window: int = 28,
     regime_vol_short: int = 4,
     regime_vol_long: int = 28,
+    quant_overlay: QuantOverlayConfig | None = None,
 ) -> FastResult:
     """Vectorized backtest for the deterministic baseline.
 
@@ -150,6 +157,13 @@ def run_baseline_fast(
         )
     else:
         regime_labels = None
+
+    # Quant overlay: GARCH vol forecast, Kelly fraction, emergency override.
+    # Computed once over the whole series; per-bar lookups during the loop.
+    if quant_overlay is not None:
+        quant_signals = compute_quant_signals(closes, quant_overlay)
+    else:
+        quant_signals = None
 
     # Simulation state
     equity = initial_equity
@@ -231,13 +245,29 @@ def run_baseline_fast(
         long_pct = effective["long_pct"]
         local_short_pct = effective["short_pct"]
         active_vt = effective["vol_target_pct"]
-        if rvol is not None and idx > 0 and not math.isnan(rvol[idx - 1]):
-            sigma = rvol[idx - 1]
-            if sigma > 0 and active_vt is not None:
-                mult = active_vt / sigma
-                mult = max(config.vol_size_min_mult, min(config.vol_size_max_mult, mult))
-                long_pct *= mult
-                local_short_pct *= mult
+
+        # Pick sigma source: GARCH 1-step forecast (overlay) or realized vol.
+        sigma = None
+        if (quant_overlay is not None and quant_overlay.use_garch_vol
+                and quant_signals is not None
+                and idx > 0
+                and not math.isnan(quant_signals.garch_sigma_t_plus_1[idx - 1])):
+            sigma = float(quant_signals.garch_sigma_t_plus_1[idx - 1])
+        elif rvol is not None and idx > 0 and not math.isnan(rvol[idx - 1]):
+            sigma = float(rvol[idx - 1])
+
+        if sigma is not None and sigma > 0 and active_vt is not None:
+            mult = active_vt / sigma
+            mult = max(config.vol_size_min_mult, min(config.vol_size_max_mult, mult))
+            long_pct *= mult
+            local_short_pct *= mult
+
+        # Adaptive Kelly multiplier from realized strategy PnLs (closure-captured).
+        if quant_overlay is not None and quant_overlay.kelly_adaptive:
+            recent_pnls = [t.pnl for t in trades[-quant_overlay.kelly_lookback_trades:]]
+            kstate = update_kelly_state(recent_pnls, quant_overlay)
+            long_pct *= kstate.fraction
+            local_short_pct *= kstate.fraction
 
         target_usd = equity * (long_pct if side == "long" else local_short_pct)
         size = target_usd / entry if entry > 0 else 0.0
@@ -333,6 +363,26 @@ def run_baseline_fast(
         has_primary_short = (pos_symbol == primary_sym and pos_side == "short")
         has_hedge_long = (hedge_opens is not None and pos_symbol == hedge_sym and pos_side == "long")
 
+        # Emergency override: deterministic tail-risk halt that fires
+        # BEFORE any signal evaluation. Triggers on max-DD breach or
+        # GARCH vol z-score spike; forces all positions flat.
+        emergency_flat = False
+        if quant_overlay is not None and quant_signals is not None:
+            sigma_z_now = float(quant_signals.garch_sigma_z[i]) \
+                if not math.isnan(quant_signals.garch_sigma_z[i]) else float("nan")
+            estate = emergency_check(quant_overlay, drawdown[i], sigma_z_now)
+            if estate.force_flat:
+                emergency_flat = True
+                if pos_symbol is not None:
+                    if pos_symbol == primary_sym:
+                        _close_pos(opens[next_idx] * (1 - slip if pos_side == "long" else 1 + slip),
+                                   next_idx, f"emergency_{estate.reason}")
+                    elif hedge_opens is not None:
+                        _close_pos(hedge_opens[next_idx] * (1 - slip if pos_side == "long" else 1 + slip),
+                                   next_idx, f"emergency_{estate.reason}")
+                equity_curve.append((int(ts_ms[i]), equity))
+                continue
+
         # Force flat when the active regime override sizes to zero AND
         # disables the hedge — i.e., the strategy is told "all cash, no
         # exposure". This catches the case where mom_up would otherwise
@@ -341,7 +391,7 @@ def run_baseline_fast(
             regime_overrides is not None
             and effective["long_pct"] <= 0.0
             and effective["disable_hedge"]
-        )
+        ) and not emergency_flat
         if force_flat:
             if pos_symbol is not None:
                 if pos_symbol == primary_sym:

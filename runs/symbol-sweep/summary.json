@@ -1,0 +1,967 @@
+{
+  "training_window": {
+    "start": "2021-01-04",
+    "end": "2025-09-29"
+  },
+  "n_symbols": 30,
+  "pbo_across_symbols": 0.24444444444444444,
+  "per_symbol": {
+    "BTC/USDT:USDT": {
+      "stats": {
+        "final": 7995.8586164182025,
+        "cagr": 0.3356246963422165,
+        "sharpe": 0.762377465908951,
+        "dd": 0.24113456251857243,
+        "calmar": 1.398323764395471
+      },
+      "n_bars": 248,
+      "n_trades": 27,
+      "cpcv_median_sharpe": 0.765287830300145,
+      "cpcv_p5": -1.0864978727954502,
+      "cpcv_p95": 1.4961041645166635
+    },
+    "ETH/USDT:USDT": {
+      "stats": {
+        "final": 3436.4655449360735,
+        "cagr": 0.11967873295683051,
+        "sharpe": 0.28726797204522236,
+        "dd": 0.4726008953668106,
+        "calmar": 0.2543144022344822
+      },
+      "n_bars": 248,
+      "n_trades": 27,
+      "cpcv_median_sharpe": 0.40988729485977476,
+      "cpcv_p5": -1.2226591296142941,
+      "cpcv_p95": 1.4700061580692583
+    },
+    "SOL/USDT:USDT": {
+      "stats": {
+        "final": 107714.88117433227,
+        "cagr": 1.299033444318996,
+        "sharpe": 0.7478253778701554,
+        "dd": 0.1909313526408479,
+        "calmar": 6.844155301636571
+      },
+      "n_bars": 248,
+      "n_trades": 26,
+      "cpcv_median_sharpe": 1.0187443020355509,
+      "cpcv_p5": -1.0513888634609831,
+      "cpcv_p95": 1.5046196208254639
+    },
+    "BNB/USDT:USDT": {
+      "stats": {
+        "final": 18328.996665508133,
+        "cagr": 0.5882625587080033,
+        "sharpe": 0.4830309712066384,
+        "dd": 0.4148152186385959,
+        "calmar": 1.425280896326431
+      },
+      "n_bars": 248,
+      "n_trades": 32,
+      "cpcv_median_sharpe": 0.7198433512577861,
+      "cpcv_p5": -1.6460608561032928,
+      "cpcv_p95": 1.1819928662176533
+    },
+    "XRP/USDT:USDT": {
+      "stats": {
+        "final": 3187.9357796796808,
+        "cagr": 0.10226213761666436,
+        "sharpe": 0.139690659861926,
+        "dd": 0.6437099556772662,
+        "calmar": 0.15953609029142438
+      },
+      "n_bars": 248,
+      "n_trades": 31,
+      "cpcv_median_sharpe": -0.7353907295817352,
+      "cpcv_p5": -1.8800484190444904,
+      "cpcv_p95": 0.5826164837163812
+    },
+    "ADA/USDT:USDT": {
+      "stats": {
+        "final": 6917.170297516512,
+        "cagr": 0.29580916237517485,
+        "sharpe": 0.43567393569062907,
+        "dd": 0.4501601448420714,
+        "calmar": 0.6601292120667781
+      },
+      "n_bars": 248,
+      "n_trades": 20,
+      "cpcv_median_sharpe": 0.444704467721113,
+      "cpcv_p5": -1.3485787582955522,
+      "cpcv_p95": 1.4340004213599353
+    },
+    "DOGE/USDT:USDT": {
+      "stats": {
+        "final": 229.1654795522923,
+        "cagr": -0.3639213225563803,
+        "sharpe": -0.48061332507931603,
+        "dd": 0.9455503694190212,
+        "calmar": -0.38610389443089504
+      },
+      "n_bars": 248,
+      "n_trades": 20,
+      "cpcv_median_sharpe": 0.0,
+      "cpcv_p5": -1.3905144780245502,
+      "cpcv_p95": 1.0853918037762968
+    },
+    "AVAX/USDT:USDT": {
+      "stats": {
+        "final": 1854.1873778845168,
+        "cagr": -0.01568466556241821,
+        "sharpe": -0.046441764598362786,
+        "dd": 0.5154658831563593,
+        "calmar": -0.03054985809407404
+      },
+      "n_bars": 248,
+      "n_trades": 22,
+      "cpcv_median_sharpe": 0.3851311107797648,
+      "cpcv_p5": -1.0310981748365733,
+      "cpcv_p95": 1.5076698824582762
+    },
+    "LINK/USDT:USDT": {
+      "stats": {
+        "final": 2586.7904146759865,
+        "cagr": 0.05519672148460142,
+        "sharpe": 0.20571657530552687,
+        "dd": 0.3008596642613728,
+        "calmar": 0.1842232534236508
+      },
+      "n_bars": 248,
+      "n_trades": 28,
+      "cpcv_median_sharpe": 0.07410379383456198,
+      "cpcv_p5": -1.3537630333686628,
+      "cpcv_p95": 1.0231857309297976
+    },
+    "MSFT": {
+      "stats": {
+        "final": 1664.7071314953914,
+        "cagr": -0.03774460551908798,
+        "sharpe": -0.15833759971304084,
+        "dd": 0.45670603157392803,
+        "calmar": -0.08297347197401735
+      },
+      "n_bars": 247,
+      "n_trades": 30,
+      "cpcv_median_sharpe": -0.28617719482967285,
+      "cpcv_p5": -2.380021530248003,
+      "cpcv_p95": 1.2184755766935056
+    },
+    "AAPL": {
+      "stats": {
+        "final": 2839.133619936048,
+        "cagr": 0.07622640508465062,
+        "sharpe": 0.28476654507592997,
+        "dd": 0.2735965479418192,
+        "calmar": 0.27977887988724065
+      },
+      "n_bars": 247,
+      "n_trades": 37,
+      "cpcv_median_sharpe": 0.2782953495376779,
+      "cpcv_p5": -1.2150727834488442,
+      "cpcv_p95": 1.332144823259315
+    },
+    "GOOGL": {
+      "stats": {
+        "final": 2438.5104991854355,
+        "cagr": 0.04244247987791527,
+        "sharpe": 0.14430178272390753,
+        "dd": 0.5543722915881872,
+        "calmar": 0.07687599678731981
+      },
+      "n_bars": 247,
+      "n_trades": 34,
+      "cpcv_median_sharpe": 0.10873143988409023,
+      "cpcv_p5": -2.1054950866805107,
+      "cpcv_p95": 1.3471440260808185
+    },
+    "AMZN": {
+      "stats": {
+        "final": 1634.6517019403273,
+        "cagr": -0.04141360905813296,
+        "sharpe": -0.21858006127155832,
+        "dd": 0.43968905009240633,
+        "calmar": -0.0945616922886321
+      },
+      "n_bars": 247,
+      "n_trades": 28,
+      "cpcv_median_sharpe": -0.16262369551093986,
+      "cpcv_p5": -1.9874599679217604,
+      "cpcv_p95": 1.102276182510357
+    },
+    "META": {
+      "stats": {
+        "final": 5693.118857998343,
+        "cagr": 0.24526189436797852,
+        "sharpe": 0.5869929115454908,
+        "dd": 0.2870226001731507,
+        "calmar": 0.8583582884289193
+      },
+      "n_bars": 247,
+      "n_trades": 21,
+      "cpcv_median_sharpe": 0.6900525732525634,
+      "cpcv_p5": -1.0167651950501357,
+      "cpcv_p95": 1.3839774057737915
+    },
+    "NVDA": {
+      "stats": {
+        "final": 5410.636449832855,
+        "cagr": 0.23204460109336944,
+        "sharpe": 0.39860695066821966,
+        "dd": 0.5177008835496687,
+        "calmar": 0.45023280200916244
+      },
+      "n_bars": 247,
+      "n_trades": 26,
+      "cpcv_median_sharpe": 0.9304991632319839,
+      "cpcv_p5": -1.0953799711641004,
+      "cpcv_p95": 1.6848773808758148
+    },
+    "TSLA": {
+      "stats": {
+        "final": 2445.141565238372,
+        "cagr": 0.04303621988781847,
+        "sharpe": 0.14191707157980799,
+        "dd": 0.3222091265823526,
+        "calmar": 0.13411838391781822
+      },
+      "n_bars": 247,
+      "n_trades": 31,
+      "cpcv_median_sharpe": 0.128335708534665,
+      "cpcv_p5": -1.50396416904487,
+      "cpcv_p95": 1.2228888878418434
+    },
+    "COIN": {
+      "stats": {
+        "final": 1996.0640704080397,
+        "cagr": -0.00043766059487571063,
+        "sharpe": -0.0016456121934960582,
+        "dd": 0.4573599539298413,
+        "calmar": -0.0009610341917389907
+      },
+      "n_bars": 233,
+      "n_trades": 26,
+      "cpcv_median_sharpe": -0.018683381403814734,
+      "cpcv_p5": -1.3804421920286092,
+      "cpcv_p95": 1.249010576036545
+    },
+    "MSTR": {
+      "stats": {
+        "final": 107.38550142258612,
+        "cagr": -0.4583833684017157,
+        "sharpe": -0.33607320265178264,
+        "dd": 0.983082813600739,
+        "calmar": -0.46763741578495344
+      },
+      "n_bars": 247,
+      "n_trades": 26,
+      "cpcv_median_sharpe": 0.4516535633219003,
+      "cpcv_p5": -1.0766373666468614,
+      "cpcv_p95": 1.3020851484014375
+    },
+    "SPY": {
+      "stats": {
+        "final": 2016.653465131711,
+        "cagr": 0.001740211373270073,
+        "sharpe": 0.007237986872394104,
+        "dd": 0.4244615587531678,
+        "calmar": 0.004116422038494607
+      },
+      "n_bars": 247,
+      "n_trades": 26,
+      "cpcv_median_sharpe": 0.17743043914969317,
+      "cpcv_p5": -1.5150839857020522,
+      "cpcv_p95": 1.069765786773477
+    },
+    "QQQ": {
+      "stats": {
+        "final": 1940.2406967577922,
+        "cagr": -0.006340409090797139,
+        "sharpe": -0.025280863456020125,
+        "dd": 0.4190514440435183,
+        "calmar": -0.015191444806133563
+      },
+      "n_bars": 247,
+      "n_trades": 25,
+      "cpcv_median_sharpe": 0.021012295123000638,
+      "cpcv_p5": -1.4006035099552443,
+      "cpcv_p95": 1.4035845711174346
+    },
+    "IWM": {
+      "stats": {
+        "final": 569.2362993823256,
+        "cagr": -0.23162860519029838,
+        "sharpe": -1.0417124499753017,
+        "dd": 0.7890132658115943,
+        "calmar": -0.2946057085957194
+      },
+      "n_bars": 247,
+      "n_trades": 32,
+      "cpcv_median_sharpe": -1.305516084929811,
+      "cpcv_p5": -2.593246803132825,
+      "cpcv_p95": 1.3637912095956273
+    },
+    "DIA": {
+      "stats": {
+        "final": 1510.7100903932248,
+        "cagr": -0.057131679065476226,
+        "sharpe": -0.28791096517332015,
+        "dd": 0.399655978812224,
+        "calmar": -0.1435139740484081
+      },
+      "n_bars": 247,
+      "n_trades": 25,
+      "cpcv_median_sharpe": -0.33622227389008447,
+      "cpcv_p5": -1.8710696977234123,
+      "cpcv_p95": 1.2630893707280728
+    },
+    "XLE": {
+      "stats": {
+        "final": 1817.4455426843115,
+        "cagr": -0.01986927065835198,
+        "sharpe": -0.07635901644863353,
+        "dd": 0.6193729454511501,
+        "calmar": -0.032208228416997955
+      },
+      "n_bars": 247,
+      "n_trades": 33,
+      "cpcv_median_sharpe": -0.11491101117560076,
+      "cpcv_p5": -2.2314330601332233,
+      "cpcv_p95": 1.353335148958554
+    },
+    "XLF": {
+      "stats": {
+        "final": 2485.8616728922602,
+        "cagr": 0.04665462151684374,
+        "sharpe": 0.1900581380394504,
+        "dd": 0.428528375522122,
+        "calmar": 0.10932266414717796
+      },
+      "n_bars": 247,
+      "n_trades": 30,
+      "cpcv_median_sharpe": 0.01401684681422607,
+      "cpcv_p5": -1.800742374129349,
+      "cpcv_p95": 1.4025363447633572
+    },
+    "XLK": {
+      "stats": {
+        "final": 1898.003985671997,
+        "cagr": -0.010915424273508334,
+        "sharpe": -0.049951794100636174,
+        "dd": 0.3726479053705501,
+        "calmar": -0.029409458823283354
+      },
+      "n_bars": 247,
+      "n_trades": 31,
+      "cpcv_median_sharpe": -0.28450288549452246,
+      "cpcv_p5": -2.025324613980243,
+      "cpcv_p95": 1.5926619706490757
+    },
+    "GLD": {
+      "stats": {
+        "final": 2709.9593519514783,
+        "cagr": 0.06576959212177891,
+        "sharpe": 0.2610352821243447,
+        "dd": 0.3559271852073716,
+        "calmar": 0.18555613176636154
+      },
+      "n_bars": 247,
+      "n_trades": 30,
+      "cpcv_median_sharpe": 0.292318981154839,
+      "cpcv_p5": -1.921062973576056,
+      "cpcv_p95": 1.5578938121186419
+    },
+    "SLV": {
+      "stats": {
+        "final": 1227.9386674051998,
+        "cagr": -0.09722579281820998,
+        "sharpe": -0.4504835850815966,
+        "dd": 0.5782190149053872,
+        "calmar": -0.16879340196310386
+      },
+      "n_bars": 247,
+      "n_trades": 35,
+      "cpcv_median_sharpe": -0.6254122350798587,
+      "cpcv_p5": -2.1801181722669614,
+      "cpcv_p95": 1.4599341623863034
+    },
+    "USO": {
+      "stats": {
+        "final": 2581.744319166286,
+        "cagr": 0.05499332160908854,
+        "sharpe": 0.22055442046765616,
+        "dd": 0.42110956062208255,
+        "calmar": 0.13113452968133488
+      },
+      "n_bars": 247,
+      "n_trades": 40,
+      "cpcv_median_sharpe": 0.1992161525822195,
+      "cpcv_p5": -1.23363268110362,
+      "cpcv_p95": 1.3402319080328913
+    },
+    "BNO": {
+      "stats": {
+        "final": 2638.884159750505,
+        "cagr": 0.05984689991590897,
+        "sharpe": 0.19040143667774095,
+        "dd": 0.47052268542513104,
+        "calmar": 0.12772250119978626
+      },
+      "n_bars": 247,
+      "n_trades": 34,
+      "cpcv_median_sharpe": 0.4266043914654925,
+      "cpcv_p5": -1.2240062184546485,
+      "cpcv_p95": 1.558958693097568
+    },
+    "UCO": {
+      "stats": {
+        "final": 4459.770925349913,
+        "cagr": 0.18311507367554558,
+        "sharpe": 0.6085045008193,
+        "dd": 0.3066613292151121,
+        "calmar": 0.599752113483838
+      },
+      "n_bars": 247,
+      "n_trades": 34,
+      "cpcv_median_sharpe": 0.6343056970305702,
+      "cpcv_p5": -1.2899507428881127,
+      "cpcv_p95": 1.6715375844544986
+    }
+  },
+  "subsets": [
+    {
+      "subset": "anchor_btc_gld_usd",
+      "n_symbols": 3,
+      "symbols": "BTC/USDT:USDT,GLD,USD_CASH",
+      "equal_weight_cagr": 0.12793350424541283,
+      "equal_weight_sharpe": 0.79579010023034,
+      "equal_weight_dd": 0.14284588641836068,
+      "inv_vol_cagr": 0.11082421479493165,
+      "inv_vol_sharpe": 0.7342757819647125,
+      "inv_vol_dd": 0.15520762753705386,
+      "min_var_cagr": 0.11090092687427577,
+      "min_var_sharpe": 0.6370818988820149,
+      "min_var_dd": 0.19723203926972685
+    },
+    {
+      "subset": "anchor_plus_eth",
+      "n_symbols": 4,
+      "symbols": "BTC/USDT:USDT,GLD,ETH/USDT:USDT,USD_CASH",
+      "equal_weight_cagr": 0.125992426837229,
+      "equal_weight_sharpe": 0.8644230269211041,
+      "equal_weight_dd": 0.09613094495867279,
+      "inv_vol_cagr": 0.1152322220186861,
+      "inv_vol_sharpe": 0.818908322730117,
+      "inv_vol_dd": 0.11694950447655014,
+      "min_var_cagr": 0.11605834826675276,
+      "min_var_sharpe": 0.7861371024524579,
+      "min_var_dd": 0.13841380177627344
+    },
+    {
+      "subset": "anchor_plus_sol",
+      "n_symbols": 4,
+      "symbols": "BTC/USDT:USDT,GLD,SOL/USDT:USDT,USD_CASH",
+      "equal_weight_cagr": 0.34646081220680025,
+      "equal_weight_sharpe": 0.9731959224939517,
+      "equal_weight_dd": 0.11064495280231344,
+      "inv_vol_cagr": 0.2106876214982054,
+      "inv_vol_sharpe": 1.0076094626865704,
+      "inv_vol_dd": 0.13727387024623913,
+      "min_var_cagr": 0.12697933597028332,
+      "min_var_sharpe": 0.7315904500363112,
+      "min_var_dd": 0.1819823298614366
+    },
+    {
+      "subset": "anchor_plus_eth_sol",
+      "n_symbols": 5,
+      "symbols": "BTC/USDT:USDT,GLD,ETH/USDT:USDT,SOL/USDT:USDT,USD_CASH",
+      "equal_weight_cagr": 0.2978163819354984,
+      "equal_weight_sharpe": 0.8978703698880512,
+      "equal_weight_dd": 0.10066831059366876,
+      "inv_vol_cagr": 0.18817413570032548,
+      "inv_vol_sharpe": 0.9329844484791223,
+      "inv_vol_dd": 0.1163416951855387,
+      "min_var_cagr": 0.11762698901512225,
+      "min_var_sharpe": 0.7880695063862642,
+      "min_var_dd": 0.12429220355843
+    },
+    {
+      "subset": "crypto_top_5_w_anchor",
+      "n_symbols": 7,
+      "symbols": "BTC/USDT:USDT,GLD,ETH/USDT:USDT,SOL/USDT:USDT,BNB/USDT:USDT,XRP/USDT:USDT,USD_CASH",
+      "equal_weight_cagr": 0.28944941292258997,
+      "equal_weight_sharpe": 1.048727296496512,
+      "equal_weight_dd": 0.11620422794283602,
+      "inv_vol_cagr": 0.2014698494393674,
+      "inv_vol_sharpe": 1.0775580814187866,
+      "inv_vol_dd": 0.1280486306399956,
+      "min_var_cagr": 0.12016593111146623,
+      "min_var_sharpe": 0.8781603462552958,
+      "min_var_dd": 0.13119154406962885
+    },
+    {
+      "subset": "indices_w_anchor",
+      "n_symbols": 6,
+      "symbols": "BTC/USDT:USDT,GLD,SPY,QQQ,DIA,USD_CASH",
+      "equal_weight_cagr": 0.05087012400615287,
+      "equal_weight_sharpe": 0.4304961333602868,
+      "equal_weight_dd": 0.22788132304004483,
+      "inv_vol_cagr": 0.03186171324258713,
+      "inv_vol_sharpe": 0.272453225589855,
+      "inv_vol_dd": 0.25191327424702614,
+      "min_var_cagr": 0.031705765504895345,
+      "min_var_sharpe": 0.29243636106506055,
+      "min_var_dd": 0.24151110155372738
+    },
+    {
+      "subset": "megacap_w_anchor",
+      "n_symbols": 6,
+      "symbols": "BTC/USDT:USDT,GLD,MSFT,AAPL,GOOGL,USD_CASH",
+      "equal_weight_cagr": 0.07567918529720408,
+      "equal_weight_sharpe": 0.6472863420900345,
+      "equal_weight_dd": 0.20519435700776162,
+      "inv_vol_cagr": 0.062388057635079264,
+      "inv_vol_sharpe": 0.5482555206392811,
+      "inv_vol_dd": 0.22035723136211544,
+      "min_var_cagr": 0.054717780641510894,
+      "min_var_sharpe": 0.5123689879805717,
+      "min_var_dd": 0.2039575208232951
+    },
+    {
+      "subset": "megacap_8_w_anchor",
+      "n_symbols": 10,
+      "symbols": "BTC/USDT:USDT,GLD,MSFT,AAPL,GOOGL,AMZN,META,NVDA,SPY,USD_CASH",
+      "equal_weight_cagr": 0.0860179626063724,
+      "equal_weight_sharpe": 0.7550996113661943,
+      "equal_weight_dd": 0.2227596156037662,
+      "inv_vol_cagr": 0.06081889162275078,
+      "inv_vol_sharpe": 0.5777552756568476,
+      "inv_vol_dd": 0.2449358278510876,
+      "min_var_cagr": 0.0513042584442438,
+      "min_var_sharpe": 0.5939002623984985,
+      "min_var_dd": 0.19722140957069811
+    },
+    {
+      "subset": "commodities_w_anchor",
+      "n_symbols": 6,
+      "symbols": "BTC/USDT:USDT,GLD,SLV,USO,BNO,USD_CASH",
+      "equal_weight_cagr": 0.06370307091185734,
+      "equal_weight_sharpe": 0.537134813298953,
+      "equal_weight_dd": 0.15139772928143386,
+      "inv_vol_cagr": 0.046516288499140135,
+      "inv_vol_sharpe": 0.3991819854809873,
+      "inv_vol_dd": 0.17125231749666725,
+      "min_var_cagr": 0.038071864250895926,
+      "min_var_sharpe": 0.34799200798183705,
+      "min_var_dd": 0.15975795128353926
+    },
+    {
+      "subset": "balanced_w_anchor",
+      "n_symbols": 9,
+      "symbols": "BTC/USDT:USDT,GLD,ETH/USDT:USDT,SPY,QQQ,MSFT,AAPL,BNO,USD_CASH",
+      "equal_weight_cagr": 0.06457101729487658,
+      "equal_weight_sharpe": 0.6389779494888173,
+      "equal_weight_dd": 0.1709117521758368,
+      "inv_vol_cagr": 0.052095210394382585,
+      "inv_vol_sharpe": 0.5113078751756304,
+      "inv_vol_dd": 0.1908745823381719,
+      "min_var_cagr": 0.05817521572322204,
+      "min_var_sharpe": 0.6585032731338025,
+      "min_var_dd": 0.157694957381333
+    },
+    {
+      "subset": "low_vol_w_anchor",
+      "n_symbols": 6,
+      "symbols": "BTC/USDT:USDT,GLD,SPY,MSFT,AAPL,USD_CASH",
+      "equal_weight_cagr": 0.06856250915527884,
+      "equal_weight_sharpe": 0.6300973488366185,
+      "equal_weight_dd": 0.19847777133787628,
+      "inv_vol_cagr": 0.05364235807608564,
+      "inv_vol_sharpe": 0.5045625422565215,
+      "inv_vol_dd": 0.2153051461076872,
+      "min_var_cagr": 0.04914916325398666,
+      "min_var_sharpe": 0.4858831101771534,
+      "min_var_dd": 0.21356133631288876
+    },
+    {
+      "subset": "kitchen_sink_w_anchor",
+      "n_symbols": 14,
+      "symbols": "BTC/USDT:USDT,GLD,ETH/USDT:USDT,SOL/USDT:USDT,MSFT,AAPL,GOOGL,NVDA,SPY,QQQ,SLV,USO,BNO,USD_CASH",
+      "equal_weight_cagr": 0.12054376179049076,
+      "equal_weight_sharpe": 0.829171056126196,
+      "equal_weight_dd": 0.1659999890163319,
+      "inv_vol_cagr": 0.05988111007178576,
+      "inv_vol_sharpe": 0.5479534733990666,
+      "inv_vol_dd": 0.19227011930751084,
+      "min_var_cagr": 0.04555435198229474,
+      "min_var_sharpe": 0.5619116629029122,
+      "min_var_dd": 0.1526508643111718
+    },
+    {
+      "subset": "anchor_plus_SPY",
+      "n_symbols": 4,
+      "symbols": "BTC/USDT:USDT,GLD,SPY,USD_CASH",
+      "equal_weight_cagr": 0.09496793051738428,
+      "equal_weight_sharpe": 0.7238186021996106,
+      "equal_weight_dd": 0.18160983717386292,
+      "inv_vol_cagr": 0.07595735164017436,
+      "inv_vol_sharpe": 0.6085714119194299,
+      "inv_vol_dd": 0.2099252873716482,
+      "min_var_cagr": 0.07162698336881657,
+      "min_var_sharpe": 0.5486831226793286,
+      "min_var_dd": 0.22981510030507657
+    },
+    {
+      "subset": "anchor_plus_QQQ",
+      "n_symbols": 4,
+      "symbols": "BTC/USDT:USDT,GLD,QQQ,USD_CASH",
+      "equal_weight_cagr": 0.09275305689172475,
+      "equal_weight_sharpe": 0.6948373305938739,
+      "equal_weight_dd": 0.17929977627097524,
+      "inv_vol_cagr": 0.07478344481132715,
+      "inv_vol_sharpe": 0.5927502853644493,
+      "inv_vol_dd": 0.18516520693456767,
+      "min_var_cagr": 0.06574428161016588,
+      "min_var_sharpe": 0.5013381259859769,
+      "min_var_dd": 0.20390645880333483
+    },
+    {
+      "subset": "anchor_plus_NVDA",
+      "n_symbols": 4,
+      "symbols": "BTC/USDT:USDT,GLD,NVDA,USD_CASH",
+      "equal_weight_cagr": 0.15310599586635987,
+      "equal_weight_sharpe": 0.9592478958005567,
+      "equal_weight_dd": 0.15068066095622418,
+      "inv_vol_cagr": 0.13678232329086648,
+      "inv_vol_sharpe": 0.9361115053060423,
+      "inv_vol_dd": 0.132311257581644,
+      "min_var_cagr": 0.135220843464819,
+      "min_var_sharpe": 0.8959356699252099,
+      "min_var_dd": 0.1336361659354658
+    },
+    {
+      "subset": "anchor_plus_MSFT_AAPL",
+      "n_symbols": 5,
+      "symbols": "BTC/USDT:USDT,GLD,MSFT,AAPL,USD_CASH",
+      "equal_weight_cagr": 0.08245262470150694,
+      "equal_weight_sharpe": 0.6941857532866305,
+      "equal_weight_dd": 0.1636542889304227,
+      "inv_vol_cagr": 0.06615723336676838,
+      "inv_vol_sharpe": 0.5831923163462324,
+      "inv_vol_dd": 0.17915662578961195,
+      "min_var_cagr": 0.05574612828620262,
+      "min_var_sharpe": 0.5007456226683852,
+      "min_var_dd": 0.18669628265149463
+    },
+    {
+      "subset": "anchor_plus_3_indices",
+      "n_symbols": 6,
+      "symbols": "BTC/USDT:USDT,GLD,SPY,QQQ,DIA,USD_CASH",
+      "equal_weight_cagr": 0.05087012400615287,
+      "equal_weight_sharpe": 0.4304961333602868,
+      "equal_weight_dd": 0.22788132304004483,
+      "inv_vol_cagr": 0.03186171324258713,
+      "inv_vol_sharpe": 0.272453225589855,
+      "inv_vol_dd": 0.25191327424702614,
+      "min_var_cagr": 0.031705765504895345,
+      "min_var_sharpe": 0.29243636106506055,
+      "min_var_dd": 0.24151110155372738
+    },
+    {
+      "subset": "anchor_plus_USO",
+      "n_symbols": 4,
+      "symbols": "BTC/USDT:USDT,GLD,USO,USD_CASH",
+      "equal_weight_cagr": 0.10923879529375125,
+      "equal_weight_sharpe": 0.7823745007078999,
+      "equal_weight_dd": 0.10794346126614646,
+      "inv_vol_cagr": 0.09240715317683978,
+      "inv_vol_sharpe": 0.6932732155153702,
+      "inv_vol_dd": 0.13468274954538095,
+      "min_var_cagr": 0.08852186338431589,
+      "min_var_sharpe": 0.6345322762018556,
+      "min_var_dd": 0.15313633153654702
+    },
+    {
+      "subset": "anchor_plus_BNO",
+      "n_symbols": 4,
+      "symbols": "BTC/USDT:USDT,GLD,BNO,USD_CASH",
+      "equal_weight_cagr": 0.110512384877274,
+      "equal_weight_sharpe": 0.7706149429888373,
+      "equal_weight_dd": 0.11708537998670385,
+      "inv_vol_cagr": 0.09778926654502151,
+      "inv_vol_sharpe": 0.713633144978987,
+      "inv_vol_dd": 0.13554963176978624,
+      "min_var_cagr": 0.09092306748016932,
+      "min_var_sharpe": 0.6388321111768366,
+      "min_var_dd": 0.16620311805052243
+    },
+    {
+      "subset": "anchor_plus_oil_2",
+      "n_symbols": 5,
+      "symbols": "BTC/USDT:USDT,GLD,USO,BNO,USD_CASH",
+      "equal_weight_cagr": 0.09917961915324613,
+      "equal_weight_sharpe": 0.7460288589967389,
+      "equal_weight_dd": 0.14109465308166966,
+      "inv_vol_cagr": 0.08651876823613236,
+      "inv_vol_sharpe": 0.670319896927539,
+      "inv_vol_dd": 0.15301772065588212,
+      "min_var_cagr": 0.08219266011230175,
+      "min_var_sharpe": 0.6456977772963984,
+      "min_var_dd": 0.1427464983209431
+    },
+    {
+      "subset": "anchor_plus_oil_3",
+      "n_symbols": 6,
+      "symbols": "BTC/USDT:USDT,GLD,USO,BNO,UCO,USD_CASH",
+      "equal_weight_cagr": 0.11274346882150565,
+      "equal_weight_sharpe": 0.8461352076733368,
+      "equal_weight_dd": 0.13635630021704317,
+      "inv_vol_cagr": 0.10226215537373262,
+      "inv_vol_sharpe": 0.7670914046141254,
+      "inv_vol_dd": 0.14593557771040985,
+      "min_var_cagr": 0.09980730258824777,
+      "min_var_sharpe": 0.8023995476841538,
+      "min_var_dd": 0.13846526959575212
+    },
+    {
+      "subset": "anchor_plus_indices_oil",
+      "n_symbols": 7,
+      "symbols": "BTC/USDT:USDT,GLD,SPY,QQQ,USO,BNO,USD_CASH",
+      "equal_weight_cagr": 0.0691730673533808,
+      "equal_weight_sharpe": 0.6205196980190886,
+      "equal_weight_dd": 0.1591940717302753,
+      "inv_vol_cagr": 0.057136762902840754,
+      "inv_vol_sharpe": 0.5172505381239593,
+      "inv_vol_dd": 0.1779598013724212,
+      "min_var_cagr": 0.05787030132373938,
+      "min_var_sharpe": 0.5652381627790776,
+      "min_var_dd": 0.16441805632143824
+    },
+    {
+      "subset": "pair_BTC_GLD",
+      "n_symbols": 2,
+      "symbols": "BTC/USDT:USDT,GLD",
+      "equal_weight_cagr": 0.19791291109165177,
+      "equal_weight_sharpe": 0.7957901002303388,
+      "equal_weight_dd": 0.20642428227343318,
+      "inv_vol_cagr": 0.16785596213131382,
+      "inv_vol_sharpe": 0.7342757819647117,
+      "inv_vol_dd": 0.220428280249293,
+      "min_var_cagr": 0.14049703720827345,
+      "min_var_sharpe": 0.6370818988820146,
+      "min_var_dd": 0.24013307926149607
+    },
+    {
+      "subset": "pair_BTC_USD",
+      "n_symbols": 2,
+      "symbols": "BTC/USDT:USDT,USD_CASH",
+      "equal_weight_cagr": 0.15569230175778914,
+      "equal_weight_sharpe": 0.7623774659089523,
+      "equal_weight_dd": 0.12887117056004438,
+      "inv_vol_cagr": 0.15569230175778914,
+      "inv_vol_sharpe": 0.7623774659089523,
+      "inv_vol_dd": 0.12887117056004438,
+      "min_var_cagr": 0.26051364895079687,
+      "min_var_sharpe": 0.7623774659089505,
+      "min_var_dd": 0.19807857138259025
+    },
+    {
+      "subset": "triple_BTC_GLD_OIL",
+      "n_symbols": 3,
+      "symbols": "BTC/USDT:USDT,GLD,BNO",
+      "equal_weight_cagr": 0.15000009204941023,
+      "equal_weight_sharpe": 0.7706149429888388,
+      "equal_weight_dd": 0.15298400609748147,
+      "inv_vol_cagr": 0.13134371310870607,
+      "inv_vol_sharpe": 0.7136331449789896,
+      "inv_vol_dd": 0.1752431974766207,
+      "min_var_cagr": 0.11491730468013461,
+      "min_var_sharpe": 0.6388321111768382,
+      "min_var_dd": 0.20324401694390565
+    },
+    {
+      "subset": "pair_GLD_USD",
+      "n_symbols": 2,
+      "symbols": "GLD,USD_CASH",
+      "equal_weight_cagr": 0.032361173292457135,
+      "equal_weight_sharpe": 0.26103528212434596,
+      "equal_weight_dd": 0.19745852768057642,
+      "inv_vol_cagr": 0.032361173292457135,
+      "inv_vol_sharpe": 0.26103528212434596,
+      "inv_vol_dd": 0.19745852768057642,
+      "min_var_cagr": 0.05227841035144798,
+      "min_var_sharpe": 0.26103528212434446,
+      "min_var_dd": 0.2966880850045336
+    },
+    {
+      "subset": "pair_GLD_OIL",
+      "n_symbols": 2,
+      "symbols": "GLD,BNO",
+      "equal_weight_cagr": 0.0628041203509282,
+      "equal_weight_sharpe": 0.31211768695742675,
+      "equal_weight_dd": 0.31899747250135835,
+      "inv_vol_cagr": 0.06313441467826553,
+      "inv_vol_sharpe": 0.31964006203345485,
+      "inv_vol_dd": 0.3011802370010018,
+      "min_var_cagr": 0.0634549970934124,
+      "min_var_sharpe": 0.3231948324006101,
+      "min_var_dd": 0.28344670930099164
+    },
+    {
+      "subset": "pair_BTC_OIL",
+      "n_symbols": 2,
+      "symbols": "BTC/USDT:USDT,BNO",
+      "equal_weight_cagr": 0.19457975451818665,
+      "equal_weight_sharpe": 0.7337910313985694,
+      "equal_weight_dd": 0.19464058455655084,
+      "inv_vol_cagr": 0.179166631322756,
+      "inv_vol_sharpe": 0.6925072318689725,
+      "inv_vol_dd": 0.2046322404006393,
+      "min_var_cagr": 0.16451913404808494,
+      "min_var_sharpe": 0.6437199886751653,
+      "min_var_dd": 0.233166237917372
+    },
+    {
+      "subset": "triple_BTC_GLD_ETH",
+      "n_symbols": 3,
+      "symbols": "BTC/USDT:USDT,GLD,ETH/USDT:USDT",
+      "equal_weight_cagr": 0.17142357344065995,
+      "equal_weight_sharpe": 0.864423026921101,
+      "equal_weight_dd": 0.12607527986053674,
+      "inv_vol_cagr": 0.15459559892055497,
+      "inv_vol_sharpe": 0.8189083227301159,
+      "inv_vol_dd": 0.1511984198791796,
+      "min_var_cagr": 0.1471194024163378,
+      "min_var_sharpe": 0.7861371024524576,
+      "min_var_dd": 0.16991337407542403
+    },
+    {
+      "subset": "triple_BTC_GLD_SLV",
+      "n_symbols": 3,
+      "symbols": "BTC/USDT:USDT,GLD,SLV",
+      "equal_weight_cagr": 0.09012561543336584,
+      "equal_weight_sharpe": 0.4987674804144138,
+      "equal_weight_dd": 0.2791210866952099,
+      "inv_vol_cagr": 0.05480284023696047,
+      "inv_vol_sharpe": 0.3201655528438658,
+      "inv_vol_dd": 0.3048186187101009,
+      "min_var_cagr": 0.040016838996032256,
+      "min_var_sharpe": 0.23787923216135134,
+      "min_var_dd": 0.32512530155938385
+    },
+    {
+      "subset": "quad_BTC_GLD_ETH_SLV",
+      "n_symbols": 4,
+      "symbols": "BTC/USDT:USDT,GLD,ETH/USDT:USDT,SLV",
+      "equal_weight_cagr": 0.09756501447097277,
+      "equal_weight_sharpe": 0.5822643822909069,
+      "equal_weight_dd": 0.205750948798507,
+      "inv_vol_cagr": 0.06665565792206984,
+      "inv_vol_sharpe": 0.4131747106287883,
+      "inv_vol_dd": 0.26799577907832883,
+      "min_var_cagr": 0.0681230914355504,
+      "min_var_sharpe": 0.42763444762351444,
+      "min_var_dd": 0.2668907223253426
+    },
+    {
+      "subset": "quad_BTC_GLD_OIL_ETH",
+      "n_symbols": 4,
+      "symbols": "BTC/USDT:USDT,GLD,BNO,ETH/USDT:USDT",
+      "equal_weight_cagr": 0.14247380974390755,
+      "equal_weight_sharpe": 0.8481906865365714,
+      "equal_weight_dd": 0.1453153992624801,
+      "inv_vol_cagr": 0.12907597543195326,
+      "inv_vol_sharpe": 0.7978771902303664,
+      "inv_vol_dd": 0.15184567397472618,
+      "min_var_cagr": 0.12524080667898518,
+      "min_var_sharpe": 0.7791985987748051,
+      "min_var_dd": 0.16445877879676715
+    },
+    {
+      "subset": "quad_BTC_GLD_OIL_SLV",
+      "n_symbols": 4,
+      "symbols": "BTC/USDT:USDT,GLD,BNO,SLV",
+      "equal_weight_cagr": 0.08247579000299576,
+      "equal_weight_sharpe": 0.530559250794251,
+      "equal_weight_dd": 0.1907023491823243,
+      "inv_vol_cagr": 0.05594716986193138,
+      "inv_vol_sharpe": 0.37490277997194515,
+      "inv_vol_dd": 0.22114993151247292,
+      "min_var_cagr": 0.044233793357092877,
+      "min_var_sharpe": 0.3007558871030317,
+      "min_var_dd": 0.21927752857923496
+    },
+    {
+      "subset": "BTC_GLD_USD_ETH",
+      "n_symbols": 4,
+      "symbols": "BTC/USDT:USDT,GLD,USD_CASH,ETH/USDT:USDT",
+      "equal_weight_cagr": 0.125992426837229,
+      "equal_weight_sharpe": 0.8644230269211041,
+      "equal_weight_dd": 0.09613094495867279,
+      "inv_vol_cagr": 0.1152322220186861,
+      "inv_vol_sharpe": 0.818908322730117,
+      "inv_vol_dd": 0.11694950447655014,
+      "min_var_cagr": 0.11605834826675276,
+      "min_var_sharpe": 0.7861371024524579,
+      "min_var_dd": 0.13841380177627344
+    },
+    {
+      "subset": "BTC_GLD_USD_SLV",
+      "n_symbols": 4,
+      "symbols": "BTC/USDT:USDT,GLD,USD_CASH,SLV",
+      "equal_weight_cagr": 0.06685994145566854,
+      "equal_weight_sharpe": 0.4987674804144147,
+      "equal_weight_dd": 0.2176578278816163,
+      "inv_vol_cagr": 0.04135407756723364,
+      "inv_vol_sharpe": 0.320165552843865,
+      "inv_vol_dd": 0.24129191516160672,
+      "min_var_cagr": 0.03188736998462738,
+      "min_var_sharpe": 0.23787923216135093,
+      "min_var_dd": 0.2699064408443163
+    },
+    {
+      "subset": "BTC_GLD_USD_ETH_SLV",
+      "n_symbols": 5,
+      "symbols": "BTC/USDT:USDT,GLD,USD_CASH,ETH/USDT:USDT,SLV",
+      "equal_weight_cagr": 0.07731871438302274,
+      "equal_weight_sharpe": 0.5822643822909086,
+      "equal_weight_dd": 0.16830256182039374,
+      "inv_vol_cagr": 0.053636463492919395,
+      "inv_vol_sharpe": 0.4131747106287893,
+      "inv_vol_dd": 0.2232187049528228,
+      "min_var_cagr": 0.05413696599657203,
+      "min_var_sharpe": 0.42763444762351366,
+      "min_var_dd": 0.21992749176643123
+    },
+    {
+      "subset": "BTC_GLD_USD_OIL_ETH_SLV",
+      "n_symbols": 6,
+      "symbols": "BTC/USDT:USDT,GLD,USD_CASH,BNO,ETH/USDT:USDT,SLV",
+      "equal_weight_cagr": 0.07438687054186399,
+      "equal_weight_sharpe": 0.609080248875381,
+      "equal_weight_dd": 0.13941802383897253,
+      "inv_vol_cagr": 0.05460938879429156,
+      "inv_vol_sharpe": 0.45656097487702013,
+      "inv_vol_dd": 0.16919763334076324,
+      "min_var_cagr": 0.05204826475058488,
+      "min_var_sharpe": 0.46346231337121996,
+      "min_var_dd": 0.15686217504647532
+    }
+  ],
+  "rejected_symbols": {
+    "US_stock_perps": [
+      "COIN",
+      "MSTR",
+      "NVDA",
+      "TSLA",
+      "SPY"
+    ],
+    "reason": "Binance listed these in 2026; <14 weekly bars per symbol \u2014 insufficient history for CPCV (need \u226550)",
+    "Brent_oil": [
+      "OIL",
+      "BRENT",
+      "WTI"
+    ],
+    "Brent_reason": "Not listed on Binance perpetuals.",
+    "silver": "No silver-backed perpetual on Binance (gold = PAXG/XAUT)"
+  }
+}

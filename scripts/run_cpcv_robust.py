@@ -319,10 +319,10 @@ def main(argv: list[str] | None = None) -> int:
     # Score: median_Sharpe × p5_Sharpe(positive-only) × frac_DD<15 × med_CAGR(positive-only)
     # All multiplicative; honest robustness emphasis.
     print("\n" + "=" * 100)
-    print("CPCV RANKING (true segment-reset path simulation)")
+    print("CPCV RANKING (true segment-reset path simulation; all CAGR/DD in USD)")
     print("=" * 100)
     print(f"{'rank':4s} {'config':30s} {'med_Sh':>7s} {'p5_Sh':>7s} {'IQR':>5s} "
-          f"{'med_CAGR':>9s} {'med_DD':>7s} {'p<DD15':>7s} {'p>0':>5s} {'comp':>7s}")
+          f"{'med_CAGR$':>10s} {'med_DD$':>8s} {'p<DD15':>7s} {'p>0':>5s} {'comp':>7s}")
 
     def score(r: CPCVResult) -> float:
         # Reward: high median Sharpe, controlled p5 Sharpe (downside protection),

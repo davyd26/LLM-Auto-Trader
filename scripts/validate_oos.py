@@ -115,8 +115,8 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     print(f"OOS holdout: {OOS_START} → {OOS_END}, {len(primary)} weekly bars")
 
-    print(f"\nValidating top-{args.top_k} configs against OOS holdout:\n")
-    print(f"{'config':30s} {'OOS_CAGR':>9s} {'OOS_Sh':>8s} {'OOS_DD':>7s} "
+    print(f"\nValidating top-{args.top_k} configs against OOS holdout (USD-denominated):\n")
+    print(f"{'config':30s} {'OOS_CAGR_USD':>13s} {'OOS_Sh':>8s} {'OOS_DD':>7s} "
           f"{'CPCV_Sh':>8s} {'pass':>6s}")
     print("-" * 80)
 
@@ -174,11 +174,11 @@ def main(argv: list[str] | None = None) -> int:
 
     print()
     if chosen:
-        print(f"DEPLOYMENT-CANDIDATE: {chosen}")
-        print(f"  - Train CAGR: {cfg_train_stats[chosen].get('cagr', float('nan'))*100:+.1f}%")
-        print(f"  - OOS CAGR:   {results[chosen]['oos']['cagr']*100:+.1f}%")
-        print(f"  - Train DD:   {cfg_train_stats[chosen].get('max_drawdown', float('nan'))*100:.1f}%")
-        print(f"  - OOS DD:     {results[chosen]['oos']['max_drawdown']*100:.1f}%")
+        print(f"DEPLOYMENT-CANDIDATE: {chosen}  (all figures USD-denominated)")
+        print(f"  - Train CAGR (USD): {cfg_train_stats[chosen].get('cagr', float('nan'))*100:+.1f}%")
+        print(f"  - OOS CAGR   (USD): {results[chosen]['oos']['cagr']*100:+.1f}%")
+        print(f"  - Train DD   (USD): {cfg_train_stats[chosen].get('max_drawdown', float('nan'))*100:.1f}%")
+        print(f"  - OOS DD     (USD): {results[chosen]['oos']['max_drawdown']*100:.1f}%")
         print(f"  - Composite:  {composite.get(chosen, 0.0):.4f}")
     else:
         print("NO CONFIG PASSED THE OOS GATE.")
