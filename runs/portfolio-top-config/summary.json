@@ -1,0 +1,135 @@
+{
+  "config": {
+    "universe": [
+      "BTC/USDT:USDT",
+      "GLD",
+      "BNO",
+      "USD_CASH"
+    ],
+    "universe_name": "anchor_plus_BNO",
+    "rebalancer": "MinVariance"
+  },
+  "training_window": {
+    "start": "2021-01-04",
+    "end": "2025-09-29"
+  },
+  "oos_window": {
+    "start": "2025-10-06",
+    "end": "2026-04-27"
+  },
+  "training_stats": {
+    "cagr_usd": 0.18776466726851226,
+    "sharpe_usd": 1.3235916580868257,
+    "sharpe_95_ci_lo": 0.5180077133660411,
+    "sharpe_95_ci_hi": 2.1179230722811444,
+    "sortino_usd": 1.478313049089289,
+    "max_drawdown_usd": 0.15062755941310435,
+    "calmar_usd": 1.2520223815261156,
+    "n_trades": 100
+  },
+  "regime_results": [
+    {
+      "window": "blowoff-2021",
+      "days": 364,
+      "final_usd": 2504.5430736293456,
+      "cagr_usd": 0.2418811815590125,
+      "sharpe_usd": 1.138771393615941,
+      "sortino_usd": 1.2784576724163772,
+      "max_drawdown_usd": 0.06113773706109602,
+      "calmar_usd": 4.0395266764826,
+      "n_trades": 28
+    },
+    {
+      "window": "bear-2022",
+      "days": 364,
+      "final_usd": 1916.8919804772356,
+      "cagr_usd": -0.04004621654634288,
+      "sharpe_usd": -0.28570663736913304,
+      "sortino_usd": -0.34518562362696315,
+      "max_drawdown_usd": 0.17361264999360687,
+      "calmar_usd": -0.2349263423772284,
+      "n_trades": 19
+    },
+    {
+      "window": "recovery-2023",
+      "days": 364,
+      "final_usd": 2315.338373032856,
+      "cagr_usd": 0.15140866485482207,
+      "sharpe_usd": 0.990145554127693,
+      "sortino_usd": 1.3216979353223994,
+      "max_drawdown_usd": 0.05948930734425783,
+      "calmar_usd": 2.5966955936918454,
+      "n_trades": 31
+    },
+    {
+      "window": "bull-2024",
+      "days": 364,
+      "final_usd": 2757.931860028233,
+      "cagr_usd": 0.3626517764901571,
+      "sharpe_usd": 2.244244691808769,
+      "sortino_usd": 2.7375232514717003,
+      "max_drawdown_usd": 0.04551362500567904,
+      "calmar_usd": 8.143290846500634,
+      "n_trades": 34
+    },
+    {
+      "window": "late-2025-tr",
+      "days": 266,
+      "final_usd": 2289.9871147430317,
+      "cagr_usd": 0.19246037332582944,
+      "sharpe_usd": 1.3458976691393985,
+      "sortino_usd": 1.2015675045775571,
+      "max_drawdown_usd": 0.05098059517094411,
+      "calmar_usd": 3.8809760439615255,
+      "n_trades": 34
+    },
+    {
+      "window": "OOS-2025-26",
+      "days": 203,
+      "final_usd": 2341.8453051331862,
+      "cagr_usd": 0.3030183815129561,
+      "sharpe_usd": 1.1516988247593747,
+      "sortino_usd": 1.7602076028906768,
+      "max_drawdown_usd": 0.06896209746831934,
+      "calmar_usd": 4.5614257932428,
+      "n_trades": 28
+    }
+  ],
+  "multi_numeraire_full_window": [
+    {
+      "numeraire": "USD",
+      "strat_cagr_in_num": 0.22586163873581522,
+      "buyhold_cagr_usd": null
+    },
+    {
+      "numeraire": "BTC",
+      "strat_cagr_in_num": 0.08707304246460934,
+      "buyhold_cagr_usd": 0.13836818491122527
+    },
+    {
+      "numeraire": "GLD",
+      "strat_cagr_in_num": 0.03872245707290767,
+      "buyhold_cagr_usd": 0.18273663404592488
+    },
+    {
+      "numeraire": "ETH",
+      "strat_cagr_in_num": 0.10906884634105651,
+      "buyhold_cagr_usd": 0.11579129672515642
+    },
+    {
+      "numeraire": "SOL",
+      "strat_cagr_in_num": -0.31937715148351875,
+      "buyhold_cagr_usd": 0.8181719419406104
+    },
+    {
+      "numeraire": "BNO",
+      "strat_cagr_in_num": -0.04198791066860341,
+      "buyhold_cagr_usd": 0.2823795401618854
+    },
+    {
+      "numeraire": "SPY",
+      "strat_cagr_in_num": 0.0891942197908826,
+      "buyhold_cagr_usd": 0.12793024445373313
+    }
+  ]
+}
