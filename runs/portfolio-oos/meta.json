@@ -1,0 +1,22 @@
+{
+  "oos_window": {
+    "start": "2025-10-06",
+    "end": "2026-04-27"
+  },
+  "n_configs_tested": 65,
+  "n_passed": 1,
+  "best_oos_passing": {
+    "universe": "anchor_plus_BNO",
+    "rebalancer": "MinVariance",
+    "oos_cagr_usd": 0.3030183815129561,
+    "oos_sharpe_usd": 1.1516988247593747,
+    "oos_dd_usd": 0.06896209746831934,
+    "cpcv_med_sharpe": 1.457859401178731,
+    "cpcv_med_dd": 0.061266846333412416,
+    "pass_sharpe": true,
+    "pass_dd": true,
+    "pass_cagr": true,
+    "passed": true,
+    "n_trades": 28
+  }
+}

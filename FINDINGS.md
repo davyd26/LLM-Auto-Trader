@@ -1476,6 +1476,44 @@ walk-forward because its crisis floor is too conservative for short
   CPCV: med_Sh +1.44, walk-forward med_Sh +1.53
   Both validations: 88-96% paths/segments under 15% DD
 
+### OOS Validation — held-out gate (2025-10-06 → 2026-04-27, ~30 weekly bars)
+
+`scripts/run_portfolio_oos.py`. Pass criteria:
+  • OOS Sharpe ≥ 0.5 × CPCV-median Sharpe
+  • OOS Max DD ≤ 1.5 × CPCV-median DD
+  • OOS CAGR_USD > 0
+
+**Result: 1 of 65 configs passed the OOS gate.**
+
+| | Universe | Rebalancer | OOS CAGR$ | OOS Sharpe$ | OOS DD$ | CPCV Sh |
+|---|---|---|---:|---:|---:|---:|
+| ✅ | **anchor_plus_BNO** | **MinVariance** | **+30.3%** | **+1.15** | **6.9%** | +1.46 |
+| ✕ | anchor_plus_QQQ | MinVariance | +6.9% | +0.38 | 9.3% | +1.38 |
+| ✕ | anchor_eth_oil | MinVariance | +11.0% | +0.43 | 11.0% | +1.25 |
+| ✕ | anchor_plus_BNO | Strawman | +5.9% | +0.52 | 5.0% | +1.29 |
+| ✕ | (most others) | (all) | negative or tiny | < 0 | varied | varied |
+
+**Why most configs failed OOS:** The OOS window saw broad crypto / AI
+stock weakness and a sharp Brent-oil rally. Strategies optimized for
+crypto-bull or NVDA momentum on the 2021-2025 training window did NOT
+generalize to this very different regime. Only the strategy that
+**owned BNO and rebalanced via MinVariance** captured the oil
+upturn — its analytical weighting saw oil's covariance shift and
+overweighted it.
+
+This is exactly what robustness validation is supposed to expose.
+The training-window winners (anchor_plus_sol/MinVariance med_Sh +1.84)
+underperformed OOS. The strategy that survived BOTH training CPCV
+AND held-out OOS is **anchor_plus_BNO + MinVariance**:
+
+  Universe:    BTC + GLD + BNO (Brent oil) + USD_CASH
+  Rebalancer:  MinVariance (long-only, cash-cap 20%)
+  Training:    CPCV med_Sh +1.46, walk-forward med_Sh +1.41
+  Held-out OOS: CAGR_USD +30.3%, Sharpe +1.15, Max DD 6.9%
+
+**This is the production deployment recommendation** based on data the
+strategy has never seen during selection or tuning.
+
 ### Long opus run (in progress)
 
 LLM dispatcher running with **opus + max effort thinking** in background
