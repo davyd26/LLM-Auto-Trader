@@ -1,0 +1,18 @@
+{
+  "training_window": {
+    "start": "2021-01-04",
+    "end": "2025-09-29"
+  },
+  "decision_sources": [
+    "equal_weight",
+    "inverse_vol",
+    "markowitz_min_var",
+    "strawman",
+    "llm"
+  ],
+  "subsets": [
+    "anchor_btc_gld_usd"
+  ],
+  "n_rows": 5,
+  "convention_note": "All CAGR / DD / Sharpe figures USD-denominated. USDT positions valued at USDT==USD parity. Stocks/ETFs/commodities valued at their USD close. USD_CASH leg has zero return."
+}

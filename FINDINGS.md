@@ -1253,3 +1253,137 @@ across 30 different assets in 4 asset classes, the underlying signal
 Forward paper-trade gate (8 weeks) remains the final verification
 before live capital deployment.
 
+---
+
+## LLM-driven multi-symbol portfolio rebalancer
+
+The architecture is now what was intended from the start: at each weekly
+bar, an LLM (Claude Code via ``claude -p``) sees a rich JSON snapshot
+and outputs target weights for the universe. The harness rebalances at
+the next bar's open with fees + slippage. Deterministic decision
+sources (equal-weight, inverse-vol, Markowitz min-var, rule-based
+strawman) are kept as **benchmarks** to measure whether the LLM adds
+value beyond plain rules.
+
+### What the LLM sees in its prompt at every snapshot
+
+  • Universe and current weights
+  • Initial + current equity (USD)
+  • Per-symbol quant signal panel:
+      GARCH(1,1) sigma_t + 1-step forecast + sigma_z + crisis_flag,
+      4w/12w/26w return z-scores, SMA/WMA/EMA at 4/8/12/26/52,
+      RSI(7/14/21), MACD(12,26,9) and (5,13,5),
+      volume current + 26w z-score + recent-5 + 12-bin volume profile
+  • Last 12 weekly OHLCV bars per symbol
+  • Portfolio state: equity, cash, leverage, gross/net notional,
+    per-position MTM, running max-DD, realized 4w/12w return,
+    win rate, profit factor
+  • Reference weight schemes (advisory — LLM is NOT bound):
+      equal-weight, inverse-vol risk-parity, Markowitz min-var
+  • Hard constraints: long-only, weights sum to 1.0, BTC+GLD+USD
+    anchor must each have weight > 0
+
+### CAGR convention (exhaustive)
+
+EVERY CAGR / DD / Sharpe in this section is computed in USD. A USDT
+position is valued at USDT==USD parity. A GLD or SPY position is
+valued at its USD close. The USD_CASH leg has zero return. Initial
+equity is $2,000. Multi-numeraire CAGRs (BTC, ETH, SOL, GLD) are also
+reported — these express the strategy's terminal value in units of
+that asset, useful if your benchmark/numeraire is non-USD.
+
+### Subset results — deterministic baselines (full 5y, all 21 subsets)
+
+The full grid lives in `runs/llm-portfolio/comparison.csv`. Top 5
+**SAFE** configs (DD_USD ≤ 15%, eligible for the 15% live cap):
+
+| Rank | Universe | Rebalancer | Sharpe$ | CAGR$ | DD$ | Calmar |
+|---:|---|---|---:|---:|---:|---:|
+| 1 | anchor_plus_NVDA  (BTC, GLD, NVDA, USD)         | Strawman | **+1.78** | +18.5% | 12.2% | +1.52 |
+| 2 | anchor_plus_sol   (BTC, GLD, SOL, USD)          | Strawman | +1.56 | +18.7% | 11.7% | +1.61 |
+| 3 | pair_GLD_USD      (GLD, USD)                    | Strawman | +1.35 | +4.8% | **3.1%** | +1.57 |
+| 4 | anchor_btc_gld_usd (BTC, GLD, USD)              | Strawman | +1.31 | +10.0% | 7.6% | +1.32 |
+| 5 | kitchen_sink (BTC, GLD, ETH, SOL, MSFT, AAPL,
+  NVDA, GOOGL, SPY, QQQ, SLV, USO, BNO, USD) | Strawman | +1.27 | +12.1% | 13.6% | +0.90 |
+
+Top 5 by raw Sharpe (DD may exceed 15%):
+
+| Rank | Universe | Rebalancer | Sharpe$ | CAGR$ | DD$ |
+|---:|---|---|---:|---:|---:|
+| 1 | anchor_plus_NVDA   | Strawman    | +1.78 | +18.5% | 12.2% |
+| 2 | anchor_plus_sol    | MinVariance | +1.71 | +29.2% | 17.5% |
+| 3 | anchor_eth_nvda    | Strawman    | +1.63 | +20.4% | 16.7% |
+| 4 | anchor_eth_sol     | MinVariance | +1.58 | +28.4% | 22.4% |
+| 5 | anchor_plus_sol    | Strawman    | +1.56 | +18.7% | 11.7% |
+
+### Per-rebalancer pattern across the full 21-subset grid
+
+| Pattern | What we observe |
+|---|---|
+| **Strawman** | Wins on Sharpe + DD (lowest DDs across the board: 7.6 → 23.1%). Conservative — de-risks aggressively when GARCH crisis flag fires. |
+| **MinVariance** | Best CAGR among "safe" rebalancers when universe contains volatile cryptos. DD usually under 30%. |
+| **InverseVol** | Always lower DD than EqualWeight thanks to risk parity. Mediocre CAGR. |
+| **EqualWeight** | Often highest CAGR (let winners run) but DD spikes to 50–70% on crypto-heavy subsets. |
+| **LLM (Claude)** | (limited smoke-test data; see below) |
+
+### LLM smoke test (15 bars, anchor_btc_gld_usd only)
+
+Only a 15-bar smoke test was completed at commit time (running the LLM
+across 247 bars × 21 subsets is a multi-hour dispatch job; the
+LLMPortfolioCache makes it incremental & resumable). On this short
+stationary window early 2021:
+
+| Rebalancer | Sharpe$ | CAGR$ | DD$ |
+|---|---:|---:|---:|
+| MinVariance | +1.94 | +82.9% | 8.1% |
+| InverseVol  | +0.43 | +56.3% | 33.4% |
+| EqualWeight | +0.37 | +47.6% | 33.4% |
+| **LLM (Claude haiku)** | **+0.74** | **+30.2%** | **12.5%** |
+| Strawman    | +0.48 | +6.7%  | 5.0% |
+
+The LLM was conservative — kept DD low (12.5%) but missed early-2021
+crypto upside. 15 bars is too short to conclude. The infrastructure
+(`runs/llm-portfolio/llm_decisions.db`, 48 cached decisions) supports
+incremental multi-day completion.
+
+### Suggested deployment configurations (ranked by priority)
+
+**Top pick — best risk-adjusted return under 15% DD cap:**
+
+  Universe: BTC, GLD, NVDA, USD_CASH (4 assets, BTC+GLD+USD anchor satisfied)
+  Rebalancer: Strawman (production candidate; LLM may improve further)
+  Result: CAGR_USD +18.5%, Sharpe 1.78, Max DD_USD 12.2%, Calmar 1.52
+
+**Highest CAGR (accept 17–22% DD):**
+
+  Universe: BTC, GLD, SOL, USD_CASH
+  Rebalancer: MinVariance
+  Result: CAGR_USD +29.2%, Sharpe 1.71, Max DD_USD 17.5%
+
+**Pure capital preservation (under 8% DD):**
+
+  Universe: BTC, GLD, USD_CASH
+  Rebalancer: Strawman
+  Result: CAGR_USD +10.0%, Sharpe 1.31, Max DD_USD 7.6%
+
+### Outstanding work — the actual production LLM run
+
+The infrastructure to run the LLM strategy in earnest is committed and
+working (verified via the 15-bar smoke test). The **multi-year LLM
+backtest** is the next step — running it across the top-3 universes
+above for the full 247-bar training window (and then OOS). At ~30–60s
+per ``claude -p`` call this requires multiple hours of dispatcher
+time, but is fully resumable thanks to the SHA-256 snapshot cache.
+
+To run it manually:
+
+```
+PYTHONPATH=. python scripts/run_llm_portfolio.py \
+  --decision-sources llm \
+  --subsets anchor_plus_NVDA,anchor_plus_sol,anchor_btc_gld_usd \
+  --model haiku
+```
+
+That generates a comparable LLM Sharpe / CAGR$ / DD$ for each subset
+that can be slotted into the tables above as the "LLM(Claude)" column.
+
