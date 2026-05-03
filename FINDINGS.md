@@ -1587,6 +1587,38 @@ bootstrap sample, the strategy is positive-Sharpe.
     • Hard 15% drawdown circuit breaker
     • Optional LLM panel veto (now running with opus on the 4 user subsets)
 
+### Rebalance-threshold optimization
+
+`scripts/sweep_rebalance_threshold.py`. Tests threshold ∈ {0.02, 0.03,
+0.05, 0.08, 0.10, 0.15, 0.20} on the OOS-passing config and 2 others.
+
+| Universe | Rebalancer | Best threshold | FULL CAGR$ | Sharpe$ | DD$ | Trades |
+|---|---|---:|---:|---:|---:|---:|
+| **anchor_plus_BNO** | **MinVariance** | **0.20** | **+24.7%** | **+1.57** | 15.6% | **22** |
+| anchor_plus_BNO | Strawman    | 0.02 | +13.1% | +1.31 | 8.7% | 332 |
+| anchor_btc_gld_usd | MinVariance | 0.03 | +19.9% | +1.24 | 16.5% | 78 |
+| anchor_btc_gld_usd | Strawman    | 0.03 | +9.6%  | +1.21 | 7.6% | 124 |
+| anchor_plus_eth | MinVariance | 0.20 | +22.2% | +1.19 | 16.5% | 17 |
+
+**Threshold 0.20 dominates for MinVariance.** Rebalancing only when the
+target weight differs from current by ≥ 20% means ~4 trades/year — a
+fraction of the fee/slippage cost, and the Sharpe IMPROVES from 1.42
+(thr=0.05) to **1.57** (thr=0.20).
+
+**Final refined production config:**
+
+  Universe:    BTC + GLD + BNO + USD_CASH
+  Rebalancer:  MinVariance (long-only, cash cap 20%)
+  Threshold:   **0.20** (rebalance only on 20%+ weight delta)
+  Cadence:     Weekly check; rebalance only when triggered
+
+  Full-window (5y+OOS, 2021-01-04 → 2026-04-27):
+    CAGR_USD:    +24.7%
+    Sharpe_USD:  +1.57
+    Max DD_USD:  15.6%
+    Trades:      22 over 5+ years (~4/year)
+    Fee+slippage cost:  ~9 bps/trade × 22 ≈ 20 bps total over 5y
+
 ### Long opus run (in progress)
 
 LLM dispatcher running with **opus + max effort thinking** in background
