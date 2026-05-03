@@ -54,6 +54,141 @@ def markowitz_min_var_decision_source(snapshot: dict) -> dict[str, float]:
     return equal_weight_decision_source(snapshot)
 
 
+def strawman_v2_decision_source(snapshot: dict) -> dict[str, float]:
+    """Refined rule-based portfolio rebalancer (Strawman v2).
+
+    Improvements over v1:
+      • Multi-timeframe trend confirmation (4w, 12w, 26w)
+      • RSI-based overbought/oversold gating (RSI(14) extremes)
+      • MACD histogram momentum confirmation
+      • Volume z-score as a participation filter (high-vol moves matter more)
+      • GARCH crisis flag → force defensive (cash + GLD only)
+      • Risk-budget allocation (each risk leg gets at most 25% target weight)
+      • Dynamic cash floor (5% in calm, 30% in elevated, 60% in crisis)
+
+    Cap on individual risk-leg weight prevents single-asset
+    concentration even when it's the strongest signal — pure
+    Markowitz / inv-vol can over-allocate to one symbol.
+    """
+    universe = snapshot.get("universe", [])
+    sigs = snapshot.get("quant_signals", {})
+    advisory = snapshot.get("reference_weight_schemes_advisory", {})
+    iv_advisory = advisory.get("inverse_vol_risk_parity") or {}
+
+    # Detect global crisis: ANY symbol with crisis_flag → de-risk everything
+    any_crisis = False
+    for sym in universe:
+        if sym == USD_CASH:
+            continue
+        s = sigs.get(sym, {})
+        if s.get("garch", {}).get("crisis_flag"):
+            any_crisis = True
+            break
+
+    # Score each non-cash symbol on a 0-3 scale
+    raw_scores: dict[str, float] = {}
+    n_high_score = 0
+    for sym in universe:
+        if sym == USD_CASH:
+            raw_scores[sym] = 0.0
+            continue
+        s = sigs.get(sym, {})
+        ma = s.get("moving_averages", {}).get("sma", {})
+        ema = s.get("moving_averages", {}).get("ema", {})
+        rsi = s.get("rsi", {}).get("14")
+        macd = s.get("macd", {}).get("12_26_9", {})
+        macd_hist = macd.get("hist")
+        z_4w = s.get("z_scores", {}).get("4w_return")
+        z_12w = s.get("z_scores", {}).get("12w_return")
+        vol_z = s.get("volume", {}).get("z_score")
+
+        # Trend factor: SMA(8) > SMA(26) AND SMA(26) > SMA(52)
+        sma_8 = ma.get("8")
+        sma_26 = ma.get("26")
+        sma_52 = ma.get("52")
+        ema_4 = ema.get("4")
+        ema_12 = ema.get("12")
+        trend_short = (sma_8 is not None and sma_26 is not None and sma_8 > sma_26)
+        trend_long = (sma_26 is not None and sma_52 is not None and sma_26 > sma_52)
+        ema_cross = (ema_4 is not None and ema_12 is not None and ema_4 > ema_12)
+
+        # Momentum confirmation: positive 4w z-score, MACD hist > 0
+        mom_4w = (z_4w is not None and z_4w > -0.5)
+        mom_12w = (z_12w is not None and z_12w > -0.5)
+        macd_pos = (macd_hist is not None and macd_hist > 0)
+
+        # Mean-reversion guard: avoid clearly overbought
+        rsi_ok = (rsi is None) or (rsi < 80)
+        # Trend-volume confluence: high participation moves
+        vol_ok = (vol_z is None) or (vol_z > -1.0)
+
+        # Crisis: zero score
+        crisis = bool(s.get("garch", {}).get("crisis_flag"))
+
+        score = 0.0
+        if trend_short:
+            score += 1.0
+        if trend_long:
+            score += 0.5
+        if ema_cross:
+            score += 0.5
+        if mom_4w:
+            score += 0.5
+        if mom_12w:
+            score += 0.25
+        if macd_pos:
+            score += 0.5
+        if not rsi_ok:
+            score *= 0.6
+        if not vol_ok:
+            score *= 0.85
+        if crisis:
+            score = 0.0
+
+        raw_scores[sym] = score
+        if score >= 1.5:
+            n_high_score += 1
+
+    # Allocate: each risk leg gets weight ∝ (score × inv_vol),
+    # with per-leg cap at 25% to prevent concentration.
+    weights: dict[str, float] = {}
+    for sym in universe:
+        if sym == USD_CASH:
+            continue
+        sc = raw_scores.get(sym, 0.0)
+        iv = iv_advisory.get(sym, 0.0)
+        weights[sym] = min(0.25, sc / 3.0 * max(iv, 0.05))
+
+    # Anchor floor: BTC+GLD always at least 5% if in universe (unless crisis)
+    if not any_crisis:
+        for anchor_sym in ("BTC/USDT:USDT", "GLD"):
+            if anchor_sym in universe and weights.get(anchor_sym, 0.0) < 0.05:
+                weights[anchor_sym] = 0.05
+
+    total_risk = sum(weights.values())
+
+    # Dynamic cash floor based on regime
+    if any_crisis:
+        cash_floor = 0.60
+    elif n_high_score == 0:
+        cash_floor = 0.30
+    else:
+        cash_floor = 0.05
+    cash_w = max(cash_floor, 1.0 - total_risk)
+
+    if USD_CASH in universe:
+        weights[USD_CASH] = cash_w
+    elif "GLD" in universe and any_crisis:
+        # If no cash leg, redirect to GLD in crisis
+        weights["GLD"] = max(weights.get("GLD", 0.0), 0.5)
+
+    total = sum(weights.values())
+    if total <= 0:
+        n = len(universe)
+        return {s: 1.0 / n for s in universe}
+    return {s: v / total for s, v in weights.items()}
+
+
 def strawman_decision_source(snapshot: dict) -> dict[str, float]:
     """Deterministic rule-based portfolio rebalancer.
 
@@ -250,12 +385,28 @@ class LLMPortfolioCache:
         self._conn.close()
 
 
-def _invoke_claude(prompt: str, model: str, timeout_s: int) -> str | None:
-    """Run ``claude -p`` and return the assistant text or None on error."""
+def _invoke_claude(
+    prompt: str, model: str, timeout_s: int,
+    effort: str = "max", betas: list[str] | None = None,
+) -> str | None:
+    """Run ``claude -p`` and return the assistant text or None on error.
+
+    ``effort``: one of {low, medium, high, xhigh, max}. ``max`` enables
+    full extended-thinking budget for deeper reasoning (slower but
+    higher-quality decisions).
+
+    ``betas``: e.g. ``["context-1m-2025-08-07"]`` to enable the 1M-context
+    beta header on the Anthropic API. Only effective on direct API
+    auth — Claude Code subscription session may ignore unknown betas.
+    """
+    cmd = ["claude", "-p", prompt, "--output-format", "json",
+           "--model", model, "--effort", effort]
+    if betas:
+        for b in betas:
+            cmd.extend(["--betas", b])
     try:
         result = subprocess.run(
-            ["claude", "-p", prompt, "--output-format", "json", "--model", model],
-            capture_output=True, text=True, timeout=timeout_s,
+            cmd, capture_output=True, text=True, timeout=timeout_s,
         )
     except (FileNotFoundError, subprocess.TimeoutExpired):
         return None
@@ -270,11 +421,17 @@ def _invoke_claude(prompt: str, model: str, timeout_s: int) -> str | None:
 
 def make_llm_decision_source(
     cache: LLMPortfolioCache | None = None,
-    model: str = "haiku",
-    timeout_s: int = 120,
+    model: str = "opus",
+    timeout_s: int = 600,
     fallback_source: callable | None = None,
+    effort: str = "max",
+    betas: list[str] | None = None,
 ) -> callable:
     """Build an LLM-backed decision source that caches by snapshot hash.
+
+    Defaults: ``model='opus'``, ``effort='max'`` (extended thinking with
+    maximum budget), 10-minute per-call timeout to accommodate slow
+    deep-reasoning responses.
 
     Args:
         cache: optional LLMPortfolioCache; if provided, hits/misses are
@@ -305,7 +462,10 @@ def make_llm_decision_source(
             cur_weights=json.dumps(snapshot.get("current_weights", {})),
             snapshot_json=snap_json,
         )
-        text = _invoke_claude(prompt, model=model, timeout_s=timeout_s)
+        text = _invoke_claude(
+            prompt, model=model, timeout_s=timeout_s,
+            effort=effort, betas=betas,
+        )
         if text is None:
             return fallback(snapshot)
         # Parse JSON from the response

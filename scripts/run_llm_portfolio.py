@@ -58,6 +58,7 @@ from src.backtest.llm_portfolio_decisions import (
     make_llm_decision_source,
     markowitz_min_var_decision_source,
     strawman_decision_source,
+    strawman_v2_decision_source,
 )
 from src.backtest.llm_portfolio_strategy import USD_CASH, run_llm_portfolio
 from src.backtest.quant_overlay import QuantOverlayConfig
@@ -178,7 +179,9 @@ def _stats(initial_eq: float, equity_curve: list[tuple[int, float]],
 
 
 def _decision_source_factory(name: str, llm_cache: LLMPortfolioCache | None,
-                              model: str):
+                              model: str, effort: str = "max",
+                              betas: list[str] | None = None,
+                              timeout_s: int = 600):
     if name == "equal_weight":
         return equal_weight_decision_source
     if name == "inverse_vol":
@@ -187,8 +190,13 @@ def _decision_source_factory(name: str, llm_cache: LLMPortfolioCache | None,
         return markowitz_min_var_decision_source
     if name == "strawman":
         return strawman_decision_source
+    if name == "strawman_v2":
+        return strawman_v2_decision_source
     if name == "llm":
-        return make_llm_decision_source(cache=llm_cache, model=model)
+        return make_llm_decision_source(
+            cache=llm_cache, model=model, effort=effort,
+            betas=betas, timeout_s=timeout_s,
+        )
     raise ValueError(f"unknown decision source: {name}")
 
 
@@ -201,7 +209,12 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--subsets", default="",
                    help="comma-separated subset names; default = all defined subsets")
     p.add_argument("--llm-cache-db", default="runs/llm-portfolio/llm_decisions.db")
-    p.add_argument("--model", default="haiku")
+    p.add_argument("--model", default="opus")
+    p.add_argument("--effort", default="max",
+                   choices=["low", "medium", "high", "xhigh", "max"])
+    p.add_argument("--betas", default="context-1m-2025-08-07",
+                   help="comma-separated beta header names ('' to disable)")
+    p.add_argument("--llm-timeout-s", type=int, default=600)
     p.add_argument("--rebalance-threshold", type=float, default=0.05)
     p.add_argument("--out-dir", default="runs/llm-portfolio")
     p.add_argument("--limit-bars", type=int, default=0,
@@ -286,8 +299,13 @@ def main(argv: list[str] | None = None) -> int:
             print(f"  {sub_name}: no available symbols, skipped")
             continue
 
+        betas_list = [b.strip() for b in (args.betas or "").split(",") if b.strip()]
         for src_name in sources:
-            decision_source = _decision_source_factory(src_name, llm_cache, args.model)
+            decision_source = _decision_source_factory(
+                src_name, llm_cache, args.model,
+                effort=args.effort, betas=betas_list,
+                timeout_s=args.llm_timeout_s,
+            )
             sub_bars = {s: bars_by_symbol[s] for s in non_cash}
             end_idx = (args.limit_bars - 1) if args.limit_bars > 0 else None
             try:
