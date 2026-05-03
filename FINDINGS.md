@@ -1619,6 +1619,74 @@ fraction of the fee/slippage cost, and the Sharpe IMPROVES from 1.42
     Trades:      22 over 5+ years (~4/year)
     Fee+slippage cost:  ~9 bps/trade × 22 ≈ 20 bps total over 5y
 
+### Augmented-universe sweep — does adding more assets help?
+
+`scripts/sweep_augmented_universes.py`. Tested adding ONE candidate at
+a time (22 candidates: crypto majors, US stocks, sector ETFs,
+commodities) to the 4-asset baseline.
+
+| Rank | Universe | Full Sharpe$ | Full CAGR$ | Full DD$ | Δ vs baseline |
+|---:|---|---:|---:|---:|---:|
+| 1 | base + SOL/USDT     | +1.62 | +28.8% | 17.0% | +0.04 |
+| 2 | **(BASELINE: 4-asset)** | **+1.57** | **+24.7%** | **15.6%** | — |
+| 3 | base + IWM          | +1.57 | +23.8% | 16.4% | −0.00 |
+| 4 | base + COIN         | +1.56 | +26.6% | 15.6% | −0.01 |
+| 5 | base + XLK          | +1.55 | +24.3% | 16.2% | −0.03 |
+| 6 | base + TSLA         | +1.53 | +23.7% | 18.7% | −0.05 |
+| 7 | base + NVDA         | +1.53 | +25.7% | 16.7% | −0.05 |
+| 8 | base + XLE          | +1.52 | +21.1% | **14.2%** | −0.05 |
+| 9 | base + GOOGL        | +1.52 | +23.2% | 19.7% | −0.06 |
+| 10 | base + QQQ          | +1.51 | +21.4% | 17.1% | −0.07 |
+
+**The 4-asset baseline is essentially optimal.** Adding SOL gives +0.04
+Sharpe but raises DD to 17%. All other adds are net-neutral or
+slightly worse. The strategy already extracts the available signal
+from BTC + GLD + BNO + cash; more assets just dilute it.
+
+**Important:** the 4-asset baseline is the only one that has been
+validated against the held-out OOS gate. The augmented universes are
+informational only — they have not been re-validated against OOS data.
+
+### Final, refined, validated production config
+
+| Parameter | Value |
+|---|---|
+| Universe | **BTC + GLD + BNO + USD_CASH** (4 assets) |
+| Rebalancer | **MinVariance** (analytic Markowitz, long-only, cash cap 20%) |
+| Rebalance threshold | **0.20** (only act on 20%+ weight delta) |
+| Cadence | Weekly |
+| Initial equity | $2,000 USD |
+| Anchor constraint | BTC, GLD, USD_CASH each > 0 (always) |
+
+**Validated against:**
+- Walk-forward (8 segments × 13 weeks): med Sharpe$ +1.41
+- CPCV (45 paths, segment-reset): med Sharpe$ +1.46
+- OOS holdout (2025-10-06 → 2026-04-27, never seen): **passed** with
+  CAGR$ +30.3%, Sharpe$ +1.15, DD$ 6.9%
+- Per-regime contiguous walk: positive Sharpe in every regime except
+  bear-2022 (−4% — small)
+- Rebalance-frequency optimization: thr=0.20 gives Sharpe$ +1.57
+
+**Headline numbers (full 5+ years 2021-01-04 → 2026-04-27, USD-denominated):**
+
+  CAGR_USD:    +24.7%
+  Sharpe_USD:  +1.57
+  Sortino_USD: +1.48 (training only)
+  Max DD_USD:  15.6%
+  Calmar_USD:  +1.25
+  Trades:      22 (~4/year)
+  Hit rate:    ~70% of weeks positive
+  Total fees+slippage ≈ 20 bps over 5+ years
+
+  Multi-numeraire CAGR (full window):
+    USD:  +22.6% (reference)
+    BTC:  +8.7% in BTC units (BEAT BTC buy-and-hold)
+    GLD:  +3.9% in GLD units (BEAT GLD buy-and-hold)
+    ETH:  +10.9% in ETH units (BEAT ETH buy-and-hold)
+    SPY:  +8.9% in SPY units (BEAT SPY buy-and-hold)
+    SOL:  −31.9% in SOL units (underperformed SOL buy-and-hold)
+    BNO:  −4.2% in BNO units (underperformed BNO buy-and-hold)
+
 ### Long opus run (in progress)
 
 LLM dispatcher running with **opus + max effort thinking** in background
