@@ -209,6 +209,7 @@ __marimo__/
 # Project-specific
 .claude/
 CLAUDE.md
+.codegraph/
 *.sqlite
 *.sqlite-wal
 *.sqlite-shm
