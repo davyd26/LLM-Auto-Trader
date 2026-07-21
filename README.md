@@ -487,6 +487,24 @@ python scripts/run_cpcv.py ... --decisions-source baseline-stub
 - For multi-config sweeps: `compute_pbo(sharpes_matrix)` produces a
   Bailey/López de Prado PBO
 
+### Comparing the LLM against deterministic baselines
+
+`scripts/compare_llm_vs_baselines.py` scores the cached Opus decisions
+against the deterministic rebalancers (EqualWeight, InverseVol,
+MinVariance, Strawman) over the same window, so the LLM's edge is measured
+net of what a mechanical strategy would have earned for free.
+
+```bash
+python scripts/compare_llm_vs_baselines.py \
+    --llm-cache-db runs/llm-portfolio/llm_decisions_opus.db \
+    --out-dir runs/llm-portfolio
+```
+
+Snapshots with no cached LLM decision fall back to equal-weight, and the
+output reports cache coverage per subset (`llm_cache_hits` /
+`llm_cache_misses`) so partial coverage can't be mistaken for a real
+result. Outputs: `comparison_with_llm.csv` and `comparison_with_llm_meta.json`.
+
 ### Pass criteria for "honest super profitability"
 
 For a strategy to be deemed safe to deploy at $2K AUM with weekly cadence:
