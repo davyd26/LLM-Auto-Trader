@@ -1,0 +1,23 @@
+{
+  "training_window": {
+    "start": "2021-01-04",
+    "end": "2025-09-29"
+  },
+  "subsets": [
+    "pair_BTC_GLD",
+    "pair_BTC_USD",
+    "pair_GLD_USD",
+    "anchor_btc_gld_usd"
+  ],
+  "decision_sources": [
+    "EqualWeight",
+    "InverseVol",
+    "MinVariance",
+    "Strawman",
+    "Strawman_v2",
+    "LLM(opus)"
+  ],
+  "convention": "All CAGR / Sharpe / DD figures USD-denominated.",
+  "llm_total_cached": null,
+  "rebalance_threshold": 0.03
+}
