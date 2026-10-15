@@ -12,6 +12,8 @@ Pricing defaults to zero (you're presumably running locally); set
 from __future__ import annotations
 
 import asyncio
+import json
+import os
 from typing import Any
 
 import httpx
@@ -24,6 +26,27 @@ from src.llm.providers.base import (
     LLMUsage,
     Pricing,
 )
+
+
+def _extra_headers_from_env() -> dict[str, str]:
+    """Optional extra HTTP headers merged into every request.
+
+    Read from the ``LLM_EXTRA_HEADERS`` env var as a JSON object, e.g.
+    ``LLM_EXTRA_HEADERS={"x-opencode-session":"ses_...","User-Agent":"..."}``.
+    Useful for gateways that require routing/session headers (such as
+    OpenCode Go) or a non-generic User-Agent. Invalid JSON is ignored.
+    """
+    raw = os.environ.get("LLM_EXTRA_HEADERS", "").strip()
+    if not raw:
+        return {}
+    try:
+        parsed = json.loads(raw)
+    except (ValueError, TypeError):
+        return {}
+    if not isinstance(parsed, dict):
+        return {}
+    return {str(k): str(v) for k, v in parsed.items()}
+
 
 
 class OpenAICompatProvider(BaseLLMProvider):
@@ -78,6 +101,7 @@ class OpenAICompatProvider(BaseLLMProvider):
         headers: dict[str, str] = {"Content-Type": "application/json"}
         if self._api_key and self._api_key != "not-needed":
             headers["Authorization"] = f"Bearer {self._api_key}"
+        headers.update(_extra_headers_from_env())
 
         payload: dict[str, Any] = {
             "model": self._model,

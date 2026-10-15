@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 import aiohttp
 
 from config.settings import Settings
-from config.symbols import get_enabled_symbols
+from config.symbols import get_enabled_symbols, resolve_symbols_for_exchange
 from src.analysis.cusum import CUSUMFilter
 from src.analysis.market_state import MarketState
 from src.data.aggregator import DataAggregator
@@ -223,10 +223,16 @@ class TradingBot:
         # Exchange connections
         await self.market.initialize()
 
-        # Validate symbols against exchange
+        # Validate symbols against exchange, retargeting the configured quote
+        # currency (e.g. EUR on Kraken spot) and applying spot fallbacks.
         symbol_configs = get_enabled_symbols()
         candidate_symbols = [s.symbol for s in symbol_configs]
-        self._symbols = self.market.get_available_symbols(candidate_symbols)
+        available = set(self.market.trading_exchange.markets.keys())
+        resolved = resolve_symbols_for_exchange(
+            available,
+            quote_currency=self.settings.exchange.quote_currency,
+        )
+        self._symbols = [s.symbol for s in resolved]
 
         if not self._symbols:
             log.error("no_valid_symbols", candidates=candidate_symbols)
